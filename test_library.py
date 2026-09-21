@@ -50,6 +50,19 @@ class LibraryTest(unittest.TestCase):
             self.assertIn(project['category'], {c['id'] for c in data['categories']})
             self.assertNotIn('installed', project)
 
+    def test_community_refresh_endpoint_preserves_offline_reads(self):
+        from unittest.mock import patch
+        data = client.get('/community').json()
+        data['checked_at'] = '2026-09-20T12:00:00+00:00'
+        with patch.object(api._stories, 'refresh', return_value=data) as refresh:
+            response = client.get('/community?refresh=true')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), data)
+            refresh.assert_called_once()
+        with patch.object(api._stories, 'refresh', side_effect=TimeoutError('offline')):
+            self.assertEqual(client.get('/community?refresh=true').status_code, 502)
+            self.assertEqual(client.get('/community').status_code, 200)
+
     @classmethod
     def setUpClass(cls):
         cls.source = root/'source'

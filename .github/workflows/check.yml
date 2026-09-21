@@ -19,5 +19,5 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install PyYAML
-      - run: python -m unittest test_installer
+      - run: python -m unittest test_installer test_stories
       - run: python -m compileall -q dashboard install.py preview test_library.py

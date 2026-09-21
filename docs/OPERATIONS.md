@@ -12,7 +12,7 @@
 
 This plugin does not add a per-plugin permission sandbox. The permissions a third-party package needs may be absent or incomplete in its metadata. Catalog/scanner checks reduce some risks but do not establish that code is safe. Review a package before enabling it. Full failure-mode and permission declarations on every card are not implemented in this release.
 
-The optional preview binds to loopback and blocks writes. It exposes local catalog/profile information to a browser on your computer; do not proxy it onto the public Internet.
+The optional preview binds to loopback and blocks installation/configuration writes; Use Cases refresh may update its local public-metadata cache. It exposes local catalog/profile information to a browser on your computer; do not proxy it onto the public Internet.
 
 No telemetry, analytics endpoint or credential import is implemented by this library. Hermes and imported packages have their own networking behavior. Repository cloning can use credentials already configured in Git/Hermes.
 
@@ -20,6 +20,6 @@ Remote Hermes connections require the backend on the remote machine. The local i
 
 To recover, disable this plugin and reopen Hermes. Installed skills and other plugins remain available through Hermes' built-in management screens. Preserve backups and compare config changes before restoring an older entire configuration over newer settings.
 
-The Use Cases tab serves a bundled snapshot of the official Nous documentation’s user stories without reading profiles or contacting project sites. External links open only when clicked (through the Desktop SDK on supported hosts, normal links in the browser preview). The collection is updated from a pinned commit of Nous’s docs dataset, not automatic social-feed scraping. Inclusion does not establish installability or compatibility.
+The Use Cases tab serves a bundled snapshot of the official Nous documentation’s user stories without reading profiles or contacting project sites. External links open only when clicked (through the Desktop SDK on supported hosts, normal links in the browser preview). Clicking Refresh contacts the fixed official Nous GitHub commit API and downloads its story metadata from that immutable revision. It does not fetch individual posts or use a GitHub token. Requests have timeouts and size limits; invalid or failed updates keep the previous collection. Successful metadata is saved atomically under `$HERMES_HOME/cache/hermes-skills-library/user-stories.json` (default `~/.hermes/cache/hermes-skills-library/user-stories.json`). Reopening reads that cache without contacting Nous. New installs and unavailable/corrupt caches fall back to the bundled snapshot. GitHub rate limits or network outages can prevent a refresh; retry later. The preview allows this catalog refresh while continuing to block installation writes. Inclusion does not establish installability or compatibility.
 
 Community ships inside the Desktop entry as of 0.4.1; it does not wait on a backend route. If upgrading from 0.4.0, reload the Desktop plugin or reopen Desktop to load the new JavaScript. The public `/community` backend route remains available for consumers.

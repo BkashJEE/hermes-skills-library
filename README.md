@@ -19,7 +19,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Requirements and status
 
-**Early community release, v0.5.0.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
+**Early community release, v0.5.1.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
 
 You need a working Hermes Desktop installation and access to its Python environment. This repository contains the plugin; it does not bundle Hermes, third-party skills, credentials, or connector packages.
 
@@ -55,9 +55,11 @@ Open **Use Cases** beside Skills and Plugins to browse [Nous Research’s offici
 
 ![Use cases from the Nous docs](docs/community.png)
 
-Only entries from the official docs dataset are included. Titles, authors, categories, dates and source links are preserved; original post quotations are not copied. These are attributed user experiences, not independently verified outcomes. Counts reflect the bundled snapshot, not a live feed.
+Only entries from the official docs dataset are included. Titles, authors, categories, dates and source links are preserved; original post quotations are not copied. These are attributed user experiences, not independently verified outcomes. Counts initially reflect the bundled snapshot or your last saved refresh.
 
-The source revision and sync date are recorded in `dashboard/community.json`. The snapshot is embedded in the Desktop entry, so it appears even without a backend or social sign-in. To refresh it, run `python scripts/import-nous-stories.py --revision <full NousResearch/hermes-agent commit SHA>`, then `npm run sync:community` and the checks. Review the diff before publishing.
+**Refresh** checks the latest official Nous docs dataset, updates cards without clearing your filters, and shows the last successful check time. New stories, categories and sources become browsable immediately. The last successful collection is saved locally for reopening the tab; a failed refresh keeps existing cards visible. Refresh needs a working plugin backend and internet connection.
+
+The bundled source revision and sync date are recorded in `dashboard/community.json`. This fallback is embedded in the Desktop entry, so cards still appear without a backend or social sign-in. For maintainers updating the shipped fallback, run `python scripts/import-nous-stories.py --revision <full NousResearch/hermes-agent commit SHA>`, then `npm run sync:community` and the checks. Review the diff before publishing.
 
 ## Optional local skill sources
 
@@ -84,7 +86,7 @@ python -m uvicorn preview.server:app --host 127.0.0.1 --port 8788
 
 The preview reads local catalog data. **Do not expose it publicly.** It blocks all non-GET/HEAD requests, and installation controls are disabled. It is not a hosted installer.
 
-Tests use a disposable Hermes home for skill/plugin imports and profile isolation. `test_installer` only needs PyYAML; `test_library` also needs Hermes, FastAPI and httpx. CI checks syntax, preview build and installer config preservation; integration tests are run separately against Hermes. See the [audit and validation report](docs/AUDIT.md) for scope and limitations.
+Tests use a disposable Hermes home for skill/plugin imports and profile isolation. `test_installer` only needs PyYAML; `test_library` also needs Hermes, FastAPI and httpx. CI checks syntax, preview build, offline story refresh behavior and installer config preservation; integration tests are run separately against Hermes. See the [audit and validation report](docs/AUDIT.md) for scope and limitations.
 
 ## Update, disable and remove
 

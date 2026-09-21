@@ -100,7 +100,7 @@ const css = `
 .hsl .project-link,.hsl-dialog .project-link{display:inline-flex;align-items:center;gap:7px;color:inherit;text-decoration:none;font-size:12px;min-height:32px;padding:6px 8px;border-radius:6px;border:1px solid var(--ui-stroke-tertiary,#34343b)}
 .hsl .project-link:hover,.hsl-dialog .project-link:hover{background:var(--chrome-action-hover,#303038)}
 .hsl .project-link:focus-visible,.hsl-dialog .project-link:focus-visible{outline:2px solid var(--ui-accent,#b8aacd);outline-offset:3px}
-.hsl .community-sort{width:160px}.hsl .community-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.hsl .community-summary button{padding:4px 8px;font-size:12px}
+.hsl .community-refresh{display:flex;align-items:center;justify-content:center;gap:7px;min-height:38px;white-space:nowrap}.hsl .refresh-feedback{font-size:12px;margin:4px 0 8px}.hsl .community-sort{width:160px}.hsl .community-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.hsl .community-summary button{padding:4px 8px;font-size:12px}
 .hsl .community-intro{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--ui-accent,#b8aacd)}.hsl .community-intro p{font-size:13px}
 .hsl .community-card .summary-text{-webkit-line-clamp:3}
 .hsl .community-card .foot .badge{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--card-accent)}
@@ -6512,10 +6512,7 @@ const COMMUNITY_DIRECTORY = {
 };
 // END GENERATED COMMUNITY DIRECTORY
 
-const COMMUNITY_CATEGORIES = [
-  { id: "all", label: "All use cases", icon: "globe" },
-  ...COMMUNITY_DIRECTORY.categories,
-];
+
 function SectionTabs({ section, onChange, busy = false }) {
   return h("div", { className: "sections", "aria-label": "Capability type" },
     [["skills", "book", "Skills"], ["plugins", "extensions", "Plugins"], ["community", "globe", "Use Cases"]].map(([value, symbol, label]) =>
@@ -6545,8 +6542,48 @@ function storyCardTitle(headline) {
   const clause = headline.split(/: | — | – | where | that | so /)[0].trim();
   return clause.length >= 12 ? clause : headline;
 }
+function validStoryDirectory(data) {
+  return data && Array.isArray(data.projects) && data.projects.length > 0 && Array.isArray(data.categories)
+    && data.source_url === COMMUNITY_DIRECTORY.source_url && typeof data.checked_on === "string"
+    && data.projects.every(p => p && ["id", "name", "author", "category", "source", "description", "url", "docs_url"].every(k => typeof p[k] === "string") && Array.isArray(p.highlights))
+    && data.categories.every(c => c && typeof c.id === "string" && typeof c.label === "string");
+}
 function Community({ ctx, onSection }) {
-  const data = COMMUNITY_DIRECTORY;
+  const [data, setData] = useState(COMMUNITY_DIRECTORY);
+  const [refreshing, setRefreshing] = useState(false), [refreshNote, setRefreshNote] = useState(""), [refreshError, setRefreshError] = useState(false);
+  const requestGeneration = useRef(0), refreshPending = useRef(false);
+  useEffect(() => {
+    const generation = ++requestGeneration.current;
+    // Saved updates are optional: render the bundled cards immediately even on older Desktop backends.
+    Promise.resolve().then(() => ctx.rest("/community")).then(saved => {
+      if (generation === requestGeneration.current && validStoryDirectory(saved)) setData(saved);
+    }).catch(() => {});
+    return () => { requestGeneration.current++; };
+  }, [ctx]);
+  async function refreshStories() {
+    if (refreshPending.current) return;
+    refreshPending.current = true;
+    const generation = ++requestGeneration.current;
+    setRefreshing(true); setRefreshNote("Checking Nous docs for the latest stories…"); setRefreshError(false);
+    try {
+      const latest = await ctx.rest("/community?refresh=true");
+      if (!validStoryDirectory(latest) || !latest.checked_at) throw new Error("Refresh unavailable");
+      if (generation !== requestGeneration.current) return;
+      const known = new Set(data.projects.map(p => p.id));
+      const added = latest.projects.filter(p => !known.has(p.id)).length;
+      setData(latest);
+      setRefreshNote(added ? `Updated from Nous docs · ${added} new ${added === 1 ? "story" : "stories"}.` : "Up to date with Nous docs.");
+    } catch {
+      if (generation === requestGeneration.current) {
+        setRefreshError(true);
+        setRefreshNote("Couldn’t refresh. Your current cards are still available. Check your connection and retry; after a plugin update, reopen Hermes Desktop.");
+      }
+    } finally {
+      refreshPending.current = false;
+      if (generation === requestGeneration.current) setRefreshing(false);
+    }
+  }
+  const categories = [{ id: "all", label: "All use cases", icon: "globe" }, ...data.categories];
   const [query, setQuery] = useState(""), [category, setCategory] = useState("all"), [author, setAuthor] = useState("");
   const [mode, setMode] = useState("categories"), [sort, setSort] = useState("curated"), [selected, setSelected] = useState(null);
   const [storySource, setStorySource] = useState("");
@@ -6575,13 +6612,15 @@ function Community({ ctx, onSection }) {
         h("select", { className: "community-sort", "aria-label": "Filter use cases by source", value: storySource, onChange: e => setStorySource(e.target.value) },
           h("option", { value: "" }, "All sources"), ...[...new Set(projects.map(p => p.source))].sort().map(value => h("option", { key: value, value }, value))),
         h("select", { className: "community-sort", "aria-label": "Sort use cases", value: sort, onChange: e => setSort(e.target.value) },
-          h("option", { value: "curated" }, "Docs order"), h("option", { value: "name" }, "Name A–Z"))),
+          h("option", { value: "curated" }, "Docs order"), h("option", { value: "name" }, "Name A–Z")),
+        h("button", { className: "community-refresh", onClick: refreshStories, disabled: refreshing, "aria-label": "Refresh use cases", "aria-busy": refreshing, title: "Get the latest stories from Nous docs" }, icon("refresh"), refreshing ? "Refreshing…" : "Refresh")),
       h(CategoryPicker, { value: mode === "authors" ? author : category, onChange: mode === "authors" ? setAuthor : setCategory,
-        mode, onModeChange: setMode, items: mode === "authors" ? [{ id: "", label: "All authors", icon: "organization" }, ...Object.keys(authorCounts).sort().map(a => ({ id: a, label: shortAuthor(a), fullLabel: a, icon: "account" }))] : COMMUNITY_CATEGORIES,
+        mode, onModeChange: setMode, items: mode === "authors" ? [{ id: "", label: "All authors", icon: "organization" }, ...Object.keys(authorCounts).sort().map(a => ({ id: a, label: shortAuthor(a), fullLabel: a, icon: "account" }))] : categories,
         counts: mode === "authors" ? { ...authorCounts, "": matches.filter(p => category === "all" || p.category === category).length } : counts }),
       h("div", { className: "community-summary" }, h("span", { className: "counts muted", role: "status", "aria-live": "polite" },
-        data ? `${shown.length} ${shown.length === 1 ? "use case" : "use cases"} · Nous docs · Synced ${data.checked_on}${author ? " · " + author : ""}${category !== "all" ? " · " + COMMUNITY_CATEGORIES.find(c => c.id === category)?.label : ""}` : "Use cases"),
-        (query || author || category !== "all" || storySource) && h("button", { onClick: clear }, "Clear filters"))),
+        data ? `${shown.length} ${shown.length === 1 ? "use case" : "use cases"} · Nous docs · ${data.checked_at ? "Checked " + new Date(data.checked_at).toLocaleString() : "Synced " + data.checked_on}${author ? " · " + author : ""}${category !== "all" ? " · " + categories.find(c => c.id === category)?.label : ""}` : "Use cases"),
+        (query || author || category !== "all" || storySource) && h("button", { onClick: clear }, "Clear filters")),
+      refreshNote && h("p", { className: "refresh-feedback " + (refreshError ? "error" : "muted"), role: refreshError ? "alert" : "status" }, refreshNote)),
     h("div", { className: "library-results", ref: results, tabIndex: 0, role: "region", "aria-label": "Use cases" },
       h(React.Fragment, null,
         shown.length ? h("div", { className: "grid community-grid" }, shown.map(p => h("article", { key: p.id, className: "card community-card", "aria-label": p.name, style: { "--card-accent": p.color, "--icon-color": p.color } },
@@ -6594,9 +6633,9 @@ function Community({ ctx, onSection }) {
                 h("span", { className: "summary-dot", "aria-hidden": true }, "•"),
                 h("span", { className: "summary-text", title: p.name }, p.name)))),
           h("div", { className: "foot" },
-            h("span", { className: "badge", title: COMMUNITY_CATEGORIES.find(c => c.id === p.category)?.label }, COMMUNITY_CATEGORIES.find(c => c.id === p.category)?.label),
+            h("span", { className: "badge", title: categories.find(c => c.id === p.category)?.label }, categories.find(c => c.id === p.category)?.label),
             h("button", { onClick: () => setSelected(p), "aria-label": "View card: " + p.name }, "View card", icon("arrow-right")))))) : h("div", { className: "empty" }, h("p", null, "No matching use cases. Try another author, category, source, or search."), h("button", { onClick: clear }, "Reset browsing")),
-        h("div", { className: "community-bottom" }, h("p", { className: "muted" }, "A bundled snapshot of the official docs. Stories describe users’ experiences; inclusion is not independent verification or endorsement."),
+        h("div", { className: "community-bottom" }, h("p", { className: "muted" }, "Stories from the official docs. Refresh to check for updates. Stories describe users’ experiences; inclusion is not independent verification or endorsement."),
           h(ProjectLink, { ctx, url: data.source_url }, "Browse Nous docs")))),
     h(Dialog, { open: !!selected, onOpenChange: open => { if (!open) setSelected(null); } },
       selected && h(DialogContent, { className: "hsl-dialog community-detail" },

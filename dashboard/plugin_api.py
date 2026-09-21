@@ -1,6 +1,8 @@
 """Profile-scoped skills library using Hermes' scanner, installer and enable state."""
 from __future__ import annotations
 
+import asyncio
+import importlib.util
 import hashlib
 import json
 import os
@@ -21,10 +23,22 @@ _CACHE = (0, {})
 _LIMIT = 20 * 1024 * 1024
 
 
+_stories_spec = importlib.util.spec_from_file_location('library_stories', Path(__file__).with_name('stories.py'))
+_stories = importlib.util.module_from_spec(_stories_spec)
+_stories_spec.loader.exec_module(_stories)
+
+
 @router.get('/community')
-async def community():
-    """Bundled public project directory; no profile reads or remote scraping."""
-    return json.loads(Path(__file__).with_name('community.json').read_text())
+async def community(refresh: bool = False):
+    """Read the saved collection, or explicitly check the official Nous source."""
+    if refresh:
+        try:
+            return await asyncio.to_thread(_stories.refresh)
+        except RuntimeError as exc:
+            raise HTTPException(409, str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(502, 'Could not update from Nous docs. Your saved cards are unchanged. Check your connection and try again.') from exc
+    return await asyncio.to_thread(_stories.read_cached) or json.loads(Path(__file__).with_name('community.json').read_text())
 
 
 def sources():

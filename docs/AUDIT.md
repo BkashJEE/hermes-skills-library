@@ -73,3 +73,9 @@ Replaced the independent seven-project collection with 326 entries from Nous Res
 ### Compact Use Cases layout
 
 Use Cases now shares Skills and Plugins card geometry: 180px height, 200px minimum grid columns, 26px icons, brief bullet content and an aligned View card footer. Category and shortened author attribution remain visible; full headlines and original-story/docs links remain in the detail dialog. Browser preview checks at its normal viewport and 390×844 found no horizontal overflow or summary/footer overlap across all 326 cards. The backend-independent rendering regression and JavaScript checks passed. Native Desktop rendering still requires reopening the installed plugin.
+
+## 0.5.1 Use Cases refresh
+
+Added an explicit Refresh action with a disabled loading state, last successful check time, new-story count and recoverable errors. Downloads are limited to the official Nous GitHub revision API and the story file at that immutable revision. Validated metadata is saved atomically; initial rendering still uses bundled cards, with optional cached updates. New categories and sources are included in the browsing controls.
+
+Validation: all 20 Python tests passed, covering refresh persistence, no quotation persistence, invalid/oversized data, timeouts, write failures, concurrent refreshes, new categories, API errors, installer behavior and profile isolation. JavaScript checks, the backend-independent render regression and preview build passed. The live preview refreshed successfully from Nous, preserved the YouTube filter (17 results), retained its check time after reopening, and kept 326 cards visible when an older backend could not refresh. At 390×844, the button remained visible with no horizontal overflow or card-content overlap. Native Desktop loading still requires reopening the application after installing the updated backend.
