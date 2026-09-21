@@ -19,3 +19,5 @@ No telemetry, analytics endpoint or credential import is implemented by this lib
 Remote Hermes connections require the backend on the remote machine. The local installer does not configure remote hosts. Standalone desktop-only packages should use Hermes' built-in Desktop plugin installer.
 
 To recover, disable this plugin and reopen Hermes. Installed skills and other plugins remain available through Hermes' built-in management screens. Preserve backups and compare config changes before restoring an older entire configuration over newer settings.
+
+The Community tab serves a bundled, curated public directory without reading profiles or contacting project sites. External links open only when clicked (through the Desktop SDK on supported hosts, normal links in the browser preview). The collection is updated through repository contributions, not automatic social-feed scraping. Inclusion does not establish installability or compatibility.

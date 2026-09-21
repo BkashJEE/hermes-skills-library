@@ -28,6 +28,24 @@ app.include_router(api.router)
 client = TestClient(app)
 
 class LibraryTest(unittest.TestCase):
+    def test_community_directory_is_public_and_profile_independent(self):
+        from urllib.parse import urlparse
+        response = client.get('/community')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['main_url'], 'https://github.com/NousResearch/hermes-agent')
+        projects = data['projects']
+        self.assertTrue(projects)
+        self.assertEqual(len({p['id'] for p in projects}), len(projects))
+        for project in projects:
+            url = urlparse(project['url'])
+            self.assertEqual((url.scheme, url.hostname), ('https', 'github.com'))
+            self.assertEqual(len(url.path.strip('/').split('/')), 2)
+            self.assertTrue(project['author'])
+            self.assertTrue(project['highlights'])
+            self.assertIn(project['category'], ('voice', 'interfaces', 'workflows', 'resources'))
+            self.assertNotIn('installed', project)
+
     @classmethod
     def setUpClass(cls):
         cls.source = root/'source'

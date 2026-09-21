@@ -8,6 +8,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Features
 
+- **Community** adds a searchable showcase of projects built around Hermes, with category/author filters, details and links to original repositories and the main Hermes project.
 - Skills and plugins share a compact, responsive card layout with colorful icons and brief summaries.
 - Switch **Categories / Authors** to browse chips with counts, arrows, or a keyboard-accessible slider.
 - Short author labels keep the rail readable; hover or open details for full attribution. Maintainers and repository owners are explicitly identified as fallbacks, not assumed authors.
@@ -18,7 +19,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Requirements and status
 
-**Early community release, v0.3.0.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
+**Early community release, v0.4.0.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
 
 You need a working Hermes Desktop installation and access to its Python environment. This repository contains the plugin; it does not bundle Hermes, third-party skills, credentials, or connector packages.
 
@@ -47,6 +48,14 @@ The installer places the backend in `<Hermes root>/plugins/hermes-skills-library
 4. Install a skill for that profile, or import a plugin and enable it when ready. Skill changes apply to new conversations; plugin changes may require reopening Hermes.
 
 Cards use author metadata exactly as supplied. Short labels are presentation only: matching preserves complete attribution, so separate credits are not silently merged. Missing attribution is labeled **Not listed**. Common skills have curated brief summaries; other cards use description excerpts. Categories are inferred and may need correction.
+
+## Community showcase
+
+Open **Community** beside Skills and Plugins to explore a curated selection of public projects. Search by name, builder or idea; switch Categories / Authors; use the slider or sort A–Z. **Explore build** opens a short overview. **GitHub** opens the original repository; **Main Hermes project** opens Nous Research's upstream project.
+
+![Community showcase](docs/community.png)
+
+The initial collection includes voice, dashboards, fallback workflows and community directories. It is bundled in `dashboard/community.json`, works without social sign-in and is not a live or exhaustive feed. Source checks establish that links and descriptions match the projects; they do not certify safety or compatibility. **Suggest a build** opens an issue form for you to complete.
 
 ## Optional local skill sources
 

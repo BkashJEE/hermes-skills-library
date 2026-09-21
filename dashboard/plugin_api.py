@@ -21,6 +21,12 @@ _CACHE = (0, {})
 _LIMIT = 20 * 1024 * 1024
 
 
+@router.get('/community')
+async def community():
+    """Bundled public project directory; no profile reads or remote scraping."""
+    return json.loads(Path(__file__).with_name('community.json').read_text())
+
+
 def sources():
     """Explicit local roots; no client-supplied filesystem paths."""
     cfg = Path(__file__).with_name('sources.local.json')

@@ -55,3 +55,9 @@ Visible focus styles, labeled inputs, full author accessible names, keyboard sli
 - CI covers JavaScript syntax, preview build, installer configuration tests and Python compilation. Full Hermes integration tests are separate.
 
 Screenshots were captured and inspected during this audit from the local preview using real catalog data. Counts are observations, not fixed inventory promises. Linux dark mode is the tested environment; macOS, Windows, light themes and future Hermes API revisions remain unverified.
+
+## 0.4.0 Community follow-up — 2026-09-20
+
+Added seven source-linked public entries, shared section navigation, category/author rail, search, alphabetical sorting, detail dialogs and upstream/project links. Verified filtering to one builder/project, zero-result recovery, Escape dismissal, A–Z order and switching back to Skills/Plugins in the browser preview. At 390×844, there was no horizontal overflow or clipped card footer; the Community results pane retained 489px. Reduced-motion styles disable card movement. All 12 Python tests and the preview build passed. Desktop external opening uses the documented `ctx.os.openExternal` capability; native browser launching still needs live Electron verification. The collection is curated and bundled rather than a live social feed.
+
+![Community showcase](community.png)

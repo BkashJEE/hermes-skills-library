@@ -97,6 +97,19 @@ const css = `
 .hsl .foot button{font-size:11px;line-height:1.3;padding:6px 4px;min-height:32px;gap:5px}
 .hsl .foot .badge{font-size:10px;line-height:1.3;min-width:0}
 
+.hsl .project-link,.hsl-dialog .project-link{display:inline-flex;align-items:center;gap:7px;color:inherit;text-decoration:none;font-size:12px;min-height:32px;padding:6px 8px;border-radius:6px;border:1px solid var(--ui-stroke-tertiary,#34343b)}
+.hsl .project-link:hover,.hsl-dialog .project-link:hover{background:var(--chrome-action-hover,#303038)}
+.hsl .project-link:focus-visible,.hsl-dialog .project-link:focus-visible{outline:2px solid var(--ui-accent,#b8aacd);outline-offset:3px}
+.hsl .community-sort{width:160px}.hsl .community-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.hsl .community-summary button{padding:4px 8px;font-size:12px}
+.hsl .community-intro{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--ui-accent,#b8aacd)}.hsl .community-intro p{font-size:13px}
+.hsl .community-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
+.hsl .community-card{height:196px;padding:14px;transition:transform .15s,border-color .15s}.hsl .community-card:hover{transform:translateY(-2px)}
+.hsl .community-card .item-icon{width:32px;height:32px;box-shadow:inset 0 1px 0 #ffffff30,0 3px 6px #0003;background:linear-gradient(145deg,color-mix(in srgb,var(--icon-color) 35%,transparent),color-mix(in srgb,var(--icon-color) 12%,transparent))}
+.hsl .project-category{font-size:10px;color:var(--card-accent);margin-top:10px}.hsl .project-description{font-size:13px;line-height:1.45;margin:5px 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hsl .community-bottom{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:20px}.hsl .community-bottom p{font-size:12px;max-width:640px}.community-detail li{margin-bottom:10px}.community-detail .detail-actions .project-link{background:var(--ui-bg-quaternary,#24242b)}
+@media(prefers-reduced-motion:reduce){.hsl .community-card{transition:none}.hsl .community-card:hover{transform:none}}
+@container(max-width:540px){.hsl .community-sort{width:100%}.hsl.community .top>.project-link{font-size:11px}.hsl .sections{gap:22px}.hsl .community-intro{margin-bottom:10px}}
+
 `;
 const title = (name) =>
   String(name)
@@ -528,6 +541,100 @@ function authorLabels(row) {
   return row.authors?.length ? row.authors.map((name) => name + suffix) : ["Author not listed"];
 }
 
+
+const COMMUNITY_CATEGORIES = [
+  { id: "all", label: "All builds", icon: "globe" },
+  { id: "voice", label: "Voice", icon: "mic" },
+  { id: "interfaces", label: "Interfaces", icon: "dashboard" },
+  { id: "workflows", label: "Workflows", icon: "git-branch" },
+  { id: "resources", label: "Guides & directories", icon: "library" },
+];
+function SectionTabs({ section, onChange, busy = false }) {
+  return h("div", { className: "sections", "aria-label": "Capability type" },
+    [["skills", "book", "Skills"], ["plugins", "extensions", "Plugins"], ["community", "globe", "Community"]].map(([value, symbol, label]) =>
+      h("button", { key: value, disabled: busy, className: section === value ? "active" : "",
+        "aria-pressed": section === value, onClick: () => onChange(value) }, icon(symbol), label)));
+}
+function ProjectLink({ ctx, url, children, className = "" }) {
+  const [error, setError] = useState("");
+  let valid = false;
+  try { const u = new URL(url); valid = u.protocol === "https:" && !u.username && !u.password; } catch {}
+  if (!valid) return null;
+  return h(React.Fragment, null,
+    h("a", { href: url, title: url, target: "_blank", rel: "noopener noreferrer", className: "project-link " + className,
+      "aria-label": children === "GitHub" ? "GitHub: " + url.split("/").slice(-2).join("/") : undefined,
+      onClick: ctx.os?.openExternal && !ctx.preview ? async (event) => {
+        event.preventDefault();
+        try { if (await ctx.os.openExternal(url)) { setError(""); return; } } catch {}
+        setError("Open this address in your browser: " + url);
+      } : undefined }, children, icon("link-external")),
+    error && h(Dialog, { open: true, onOpenChange: open => { if (!open) setError(""); } },
+      h(DialogContent, { className: "hsl-dialog" }, h(DialogTitle, null, "Open project link"),
+        h(DialogDescription, null, "Desktop could not open your browser. Copy this address to open the project:"),
+        h("pre", null, url), h("button", { onClick: () => setError("") }, "Close"))));
+}
+function Community({ ctx, onSection }) {
+  const [data, setData] = useState(null), [error, setError] = useState("");
+  const [query, setQuery] = useState(""), [category, setCategory] = useState("all"), [author, setAuthor] = useState("");
+  const [mode, setMode] = useState("categories"), [sort, setSort] = useState("curated"), [selected, setSelected] = useState(null);
+  const [reload, setReload] = useState(0);
+  const results = useRef(null);
+  useEffect(() => {
+    let live = true; setError(""); setData(null);
+    ctx.rest("/community").then(value => { if (live) setData(value); }).catch(e => { if (live) setError(message(e)); });
+    return () => { live = false; };
+  }, [ctx, reload]);
+  useEffect(() => { results.current?.scrollTo({ top: 0 }); }, [query, category, author, sort]);
+  const projects = data?.projects || [];
+  const matches = projects.filter(p => `${p.name} ${p.author} ${p.description} ${p.highlights.join(" ")}`.toLowerCase().includes(query.toLowerCase().trim()));
+  const authorCounts = {}, counts = { all: 0 };
+  for (const p of matches) {
+    if (!author || p.author === author) { counts.all++; counts[p.category] = (counts[p.category] || 0) + 1; }
+    if (category === "all" || p.category === category) authorCounts[p.author] = (authorCounts[p.author] || 0) + 1;
+  }
+  if (author && !authorCounts[author]) authorCounts[author] = 0;
+  const shown = matches.filter(p => (category === "all" || p.category === category) && (!author || p.author === author));
+  if (sort === "name") shown.sort((a, b) => a.name.localeCompare(b.name));
+  const clear = () => { setQuery(""); setCategory("all"); setAuthor(""); };
+  return h("div", { className: "hsl community" }, h("style", null, css),
+    h("div", { className: "library-header" },
+      h("div", { className: "top" }, h("div", null,
+        h("div", { className: "eyebrow" }, "HERMES / COMMUNITY"),
+        h("h1", null, "Built with Hermes"), h("p", null, "Explore what people are making. Meet the builders. Find your next idea.")),
+        h(ProjectLink, { ctx, url: "https://github.com/NousResearch/hermes-agent" }, "Main Hermes project")),
+      h(SectionTabs, { section: "community", onChange: onSection }),
+      h("div", { className: "toolbar" },
+        h("div", { className: "search" }, icon("search"), h("input", { value: query, "aria-label": "Search community projects", placeholder: "Search projects, builders, or ideas…", onChange: e => setQuery(e.target.value) })),
+        h("select", { className: "community-sort", "aria-label": "Sort community projects", value: sort, onChange: e => setSort(e.target.value) },
+          h("option", { value: "curated" }, "Curated order"), h("option", { value: "name" }, "Name A–Z"))),
+      h(CategoryPicker, { value: mode === "authors" ? author : category, onChange: mode === "authors" ? setAuthor : setCategory,
+        mode, onModeChange: setMode, items: mode === "authors" ? [{ id: "", label: "All builders", icon: "organization" }, ...Object.keys(authorCounts).sort().map(a => ({ id: a, label: shortAuthor(a), fullLabel: a, icon: "account" }))] : COMMUNITY_CATEGORIES,
+        counts: mode === "authors" ? { ...authorCounts, "": matches.filter(p => category === "all" || p.category === category).length } : counts }),
+      h("div", { className: "community-summary" }, h("span", { className: "counts muted", role: "status", "aria-live": "polite" },
+        data ? `${shown.length} ${shown.length === 1 ? "project" : "projects"} · Curated selection · Sources checked ${data.checked_on}${author ? " · " + author : ""}${category !== "all" ? " · " + COMMUNITY_CATEGORIES.find(c => c.id === category)?.label : ""}` : "Community projects"),
+        (query || author || category !== "all") && h("button", { onClick: clear }, "Clear filters"))),
+    h("div", { className: "library-results", ref: results, tabIndex: 0, role: "region", "aria-label": "Community projects" },
+      error ? h("div", { className: "notice error", role: "alert" }, error, h("button", { onClick: () => setReload(n => n + 1) }, "Try again")) : !data ? h("p", { role: "status" }, "Loading community projects…") :
+      h(React.Fragment, null,
+        h("div", { className: "community-intro" }, icon("lightbulb"), h("p", null, "Community projects and resources, linked to their original repositories. Explore a build to see what it does.")),
+        shown.length ? h("div", { className: "grid community-grid" }, shown.map(p => h("article", { key: p.id, className: "card community-card", "aria-label": p.name, style: { "--card-accent": p.color, "--icon-color": p.color } },
+          h("div", { className: "card-head" }, h("span", { className: "item-icon", "aria-hidden": true }, icon(p.icon)),
+            h("div", { className: "card-heading" }, h("h3", { className: "name", title: p.name }, p.name), h("div", { className: "source", title: p.author }, "by " + p.author))),
+          h("div", { className: "project-category" }, COMMUNITY_CATEGORIES.find(c => c.id === p.category)?.label),
+          h("p", { className: "project-description" }, p.description),
+          h("div", { className: "foot" }, h("button", { onClick: () => setSelected(p), "aria-label": "Explore " + p.name }, "Explore build", icon("arrow-right")),
+            h(ProjectLink, { ctx, url: p.url }, "GitHub"))))) : h("div", { className: "empty" }, h("p", null, "No matching projects. Try another builder, category, or search."), h("button", { onClick: clear }, "Reset browsing")),
+        h("div", { className: "community-bottom" }, h("p", { className: "muted" }, "A starting collection, not a complete directory or an endorsement. Requirements and availability are maintained by each project."),
+          h(ProjectLink, { ctx, url: "https://github.com/BkashJEE/hermes-skills-library/issues/new?title=Community+project+suggestion" }, "Suggest a build")))),
+    h(Dialog, { open: !!selected, onOpenChange: open => { if (!open) setSelected(null); } },
+      selected && h(DialogContent, { className: "hsl-dialog community-detail" },
+        h(DialogTitle, null, selected.name), h(DialogDescription, null, selected.description),
+        h("p", { className: "muted" }, "Repository owner: " + selected.author),
+        h("h3", null, "What you can explore"), h("ul", null, selected.highlights.map(text => h("li", { key: text }, text))),
+        h("p", { className: "muted" }, "Source checked " + data.checked_on + ". See the original repository for current setup, permissions, and compatibility."),
+        h("div", { className: "detail-actions" }, h(ProjectLink, { ctx, url: selected.url }, "Open original project"), h("button", { onClick: () => setSelected(null) }, "Close")))));
+}
+
 function Library({ ctx }) {
   const [profiles, setProfiles] = useState([]),
     [target, setTarget] = useState(""),
@@ -585,7 +692,7 @@ function Library({ ctx }) {
     };
   }, [ctx, revision]);
   useEffect(() => {
-    if (!target) return;
+    if (!target || section === "community") return;
     const gen = ++generation.current;
     ++searchGeneration.current;
     ++previewGeneration.current;
@@ -844,6 +951,7 @@ function Library({ ctx }) {
           : {}),
       }
     : null;
+  if (section === "community") return h(Community, { ctx, onSection: setSection });
   return h(
     "div",
     { className: "hsl" },
@@ -883,32 +991,10 @@ function Library({ ctx }) {
           ),
         ),
       ),
-      h(
-        "div",
-        { className: "sections", "aria-label": "Capability type" },
-        ["skills", "plugins"].map((value) =>
-          h(
-            "button",
-            {
-              key: value,
-              disabled: busy,
-              className: section === value ? "active" : "",
-              "aria-pressed": section === value,
-              onClick: () => {
-                setSection(value);
-                setCategory("all");
-                setTab("Discover");
-                setSource("All sources");
-        setAuthor("");
-                setQuery("");
-                setImportOpen(false);
-              },
-            },
-            icon(value === "skills" ? "book" : "extensions"),
-            value === "skills" ? "Skills" : "Plugins",
-          ),
-        ),
-      ),
+      h(SectionTabs, { section, busy, onChange: value => {
+        setSection(value); setCategory("all"); setTab("Discover"); setSource("All sources");
+        setAuthor(""); setQuery(""); setImportOpen(false);
+      } }),
       h(
         "div",
         { className: "toolbar" },
