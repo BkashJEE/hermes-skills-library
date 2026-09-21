@@ -45,12 +45,24 @@ assert.ok(prompt.includes('Bot Forge blueprint'));
 assert.ok(prompt.includes("supported Bot/Profile creation flow"));
 assert.ok(prompt.includes('Do not install software'));
 assert.ok(guidedBuildTitle(COMMUNITY_DIRECTORY.projects[0]).startsWith('Recreate: '));
+const viewFixtures = [
+  { name: 'Installed A', kind: 'installed', installed: true },
+  { name: 'Installed catalog duplicate', kind: 'hub', installed: true },
+  { name: 'Available B', kind: 'hub', installed: false },
+];
+assert.deepEqual(libraryViewRows(viewFixtures, 'Discover').map(row => row.name), ['Available B']);
+assert.deepEqual(libraryViewRows(viewFixtures, 'Installed').map(row => row.name), ['Installed A']);
+assert.equal(libraryViewRows(viewFixtures, 'Hub results').length, 3);
 assert.ok(!html.includes('Loading community projects'));
 const calls = [];
 host.state.cwd = { get: () => '/work/current' };
-host.retainProfile = async profile => { calls.push(['retain', profile]); return () => calls.push(['release']); };
-host.requestProfile = async (profile, method, params, timeout, options) => {
-  calls.push([method, profile, params, options]);
+host.state.connectionId = { get: () => 'connection-local' };
+const localRoute = { connectionId: 'connection-local', mode: 'local', profile: 'ceo', targetProfile: 'ceo' };
+const remoteRoute = { connectionId: 'connection-remote', mode: 'remote', profile: 'ceo', targetProfile: 'ceo' };
+host.profileRoutes = async () => [remoteRoute, localRoute];
+host.retainProfile = async route => { calls.push(['retain', route]); return () => calls.push(['release']); };
+host.requestProfile = async (route, method, params, timeout, options) => {
+  calls.push([method, route, params, options]);
   if (method === 'session.create') return { session_id: 'runtime-1', stored_session_id: 'stored-1' };
   return {};
 };
@@ -58,8 +70,12 @@ host.openSession = async (stored, options) => calls.push(['open', stored, option
 launchGuidedBuild(COMMUNITY_DIRECTORY.projects[0], 'ceo').then(result => {
   assert.equal(result.runtime, 'runtime-1');
   assert.deepEqual(calls.map(call => call[0]), ['retain', 'session.create', 'session.title', 'open', 'prompt.submit', 'release']);
+  assert.deepEqual(calls[0][1], localRoute);
+  assert.deepEqual(calls[1][1], localRoute);
   assert.equal(calls[1][2].cwd, '/work/current');
   assert.equal(calls[1][3].spawnPriority, 'foreground');
+  assert.deepEqual(calls[3][2].route, localRoute);
+  assert.deepEqual(calls[4][1], localRoute);
   assert.ok(calls[4][2].text.includes('stop for my approval before Stage 4'));
   console.log('Community without backend and guided launch: PASS');
 }).catch(error => { console.error(error); process.exitCode = 1; });

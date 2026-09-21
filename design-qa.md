@@ -2,15 +2,15 @@
 
 Date: 2026-09-21
 
-Release: 0.6.1
+Release: 0.6.3
 
 Final result: passed
 
 ## Visual truth and implementation evidence
 
 - Source visual truth: `docs/community.png`, the established Use Cases screen in the Linux dark theme.
-- Verified implementation: local browser preview at the normal desktop viewport, category browsing mode, all 326 bundled stories.
-- Focused state: the first story's recreation details dialog, opened from the new card action.
+- Verified implementation: local browser preview at the normal desktop viewport, category browsing mode, all 326 bundled stories, and both catalog library states.
+- Focused states: the first story's recreation details dialog plus the Skills Discover and Installed views.
 - Density: 1× CSS pixels.
 
 ## Full-view comparison
@@ -34,6 +34,8 @@ The header, tabs, toolbar, category rail, count line, fixed results pane and 180
 
 ## Interaction and accessibility checks
 
+- Discover and Installed use one segmented control with distinct search and check icons, live totals, visible active state and accessible names. Discover showed 453 available skills with no installed duplicates; Installed showed the selected Agent's 79 canonical installed skills with Manage actions.
+- Each library state recomputes the source menu, category totals, summary and empty-state copy from the rows it can actually display.
 - All 326 cards render **Preview** and **Recreate** with unique accessible names tied to the story and selected Agent.
 - Browser preview makes the environment limit explicit and opens the explanatory details dialog instead of creating a chat.
 - The dialog exposes the story, author, source, recreation boundary, original link and Nous docs link.
