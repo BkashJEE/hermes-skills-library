@@ -110,9 +110,12 @@ const css = `
 .hsl .community-intro{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--ui-accent,#b8aacd)}.hsl .community-intro p{font-size:13px}
 .hsl .community-card .summary-text{-webkit-line-clamp:3}
 .hsl .community-card .foot .badge{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--card-accent)}
+.hsl .author-filter-bar{display:flex;align-items:center;gap:10px;margin:-2px 0 8px;min-width:0}.hsl .author-filter-bar label{margin:0;white-space:nowrap}.hsl .author-filter-bar select{width:min(320px,100%)}
+.hsl .author-groups{display:grid;gap:22px}.hsl .author-group{min-width:0}.hsl .author-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 2px 9px;padding-bottom:7px;border-bottom:1px solid var(--ui-stroke-tertiary,#34343b)}.hsl .author-group-name{display:flex;align-items:center;gap:8px;min-width:0;font-weight:600}.hsl .author-group-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hsl .author-group-meta{flex-shrink:0;font-size:11px;color:var(--ui-text-tertiary,#aaa8b5)}
+.hsl .author-collection{display:grid;gap:10px}.hsl .author-collection-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:11px 13px;border:1px solid var(--ui-stroke-tertiary,#34343b);border-radius:9px;background:color-mix(in srgb,var(--ui-accent,#b8aacd) 5%,var(--card,#1c1c23))}.hsl .author-collection-head h2{font-size:15px;margin:0}.hsl .author-collection-head p{font-size:11px;margin:2px 0 0}.hsl .author-category-list{text-align:right;font-size:11px;color:var(--ui-text-tertiary,#aaa8b5)}
 .hsl .community-bottom{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:20px}.hsl .community-bottom p{font-size:12px;max-width:640px}.community-detail li{margin-bottom:10px}.community-detail .detail-actions .project-link{background:var(--ui-bg-quaternary,#24242b)}
 @media(prefers-reduced-motion:reduce){.hsl .community-card{transition:none}.hsl .community-card:hover{transform:none}}
-@container(max-width:540px){.hsl .community-sort{width:100%}.hsl.community .top>.project-link{font-size:11px}.hsl .sections{gap:22px}.hsl .community-intro{margin-bottom:10px}}
+@container(max-width:540px){.hsl .community-sort{width:100%}.hsl.community .top>.project-link{font-size:11px}.hsl .sections{gap:22px}.hsl .community-intro{margin-bottom:10px}.hsl .author-filter-bar{align-items:stretch;flex-direction:column;gap:5px}.hsl .author-filter-bar select{width:100%}.hsl .author-collection-head{display:block}.hsl .author-category-list{text-align:left;margin-top:6px}}
 
 `;
 const title = (name) =>
@@ -543,6 +546,10 @@ function shortAuthor(label) {
 function authorLabels(row) {
   const suffix = row.author_kind && row.author_kind !== "author" ? ` (${row.author_kind})` : "";
   return row.authors?.length ? row.authors.map((name) => name + suffix) : ["Author not listed"];
+}
+function cardAuthor(row) {
+  const labels = authorLabels(row);
+  return labels[0] === "Author not listed" ? "Creator not listed" : "by " + labels.map(shortAuthor).join(", ");
 }
 
 
@@ -6624,6 +6631,16 @@ const STORY_CATEGORY_LABELS = {
   "content-creation": "Making content", research: "Learning & research", enterprise: "Work teams",
   messaging: "Chat & messages", general: "Other ideas", trading: "Trading & investing", marketing: "Promoting your work"
 };
+function groupStoriesByAuthor(stories) {
+  const groups = new Map();
+  for (const story of stories) {
+    if (!groups.has(story.author)) groups.set(story.author, []);
+    groups.get(story.author).push(story);
+  }
+  return [...groups.entries()]
+    .map(([author, items]) => ({ author, items }))
+    .sort((a, b) => b.items.length - a.items.length || a.author.localeCompare(b.author));
+}
 function Community({ ctx, onSection }) {
   const [data, setData] = useState(COMMUNITY_DIRECTORY);
   const [refreshing, setRefreshing] = useState(false), [refreshNote, setRefreshNote] = useState(""), [refreshError, setRefreshError] = useState(false);
@@ -6676,9 +6693,27 @@ function Community({ ctx, onSection }) {
     if (category === "all" || p.category === category) authorCounts[p.author] = (authorCounts[p.author] || 0) + 1;
   }
   if (author && !authorCounts[author]) authorCounts[author] = 0;
+  const authorItems = Object.keys(authorCounts).sort((a, b) => authorCounts[b] - authorCounts[a] || a.localeCompare(b));
   const shown = matches.filter(p => (category === "all" || p.category === category) && (!author || p.author === author));
   if (sort === "name") shown.sort((a, b) => a.name.localeCompare(b.name));
+  const authorGroups = groupStoriesByAuthor(shown);
+  const repeatedAuthorGroups = authorGroups.filter(group => group.items.length > 1);
+  const singleAuthorStories = authorGroups.filter(group => group.items.length === 1).map(group => group.items[0]);
+  const categoryNamesFor = stories => [...new Set(stories.map(p => categories.find(c => c.id === p.category)?.label).filter(Boolean))];
   const clear = () => { setQuery(""); setCategory("all"); setAuthor(""); setStorySource(""); };
+  const storyCard = p => h("article", { key: p.id, className: "card community-card", "aria-label": p.name, style: { "--card-accent": p.color, "--icon-color": p.color } },
+    h("div", { className: "card-head" }, h("span", { className: "item-icon", "aria-hidden": true }, icon(p.icon)),
+      h("div", { className: "card-heading" }, h("h3", { className: "name", title: p.name }, storyCardTitle(p.name)), h("div", { className: "source", title: `${p.source} · ${p.author}` }, `${p.source} · ${shortAuthor(p.author)}`))),
+    h("div", { className: "card-summary" },
+      h("div", { className: "summary-label" }, "What people built"),
+      h("div", { className: "summary-points", role: "list", "aria-label": "What people built" },
+        h("div", { className: "summary-point", role: "listitem" },
+          h("span", { className: "summary-dot", "aria-hidden": true }, "•"),
+          h("span", { className: "summary-text", title: p.name }, p.name)))),
+    h("div", { className: "foot" },
+      h("span", { className: "badge", title: categories.find(c => c.id === p.category)?.fullLabel }, categories.find(c => c.id === p.category)?.label),
+      h(StoryPreviewButton, { ctx, story: p, revision: data.source_revision, onDetails: () => setSelected(p) })));
+  const storyGrid = stories => h("div", { className: "grid community-grid" }, stories.map(storyCard));
   return h("div", { className: "hsl community" }, h("style", null, css),
     h("div", { className: "library-header" },
       h("div", { className: "top" }, h("div", null,
@@ -6694,26 +6729,34 @@ function Community({ ctx, onSection }) {
           h("option", { value: "curated" }, "Docs order"), h("option", { value: "name" }, "Name A–Z")),
         h("button", { className: "community-refresh", onClick: refreshStories, disabled: refreshing, "aria-label": "Refresh use cases", "aria-busy": refreshing, title: "Get the latest stories from Nous docs" }, icon("refresh"), refreshing ? "Refreshing…" : "Refresh")),
       h(CategoryPicker, { value: mode === "authors" ? author : category, onChange: mode === "authors" ? setAuthor : setCategory,
-        mode, onModeChange: setMode, items: mode === "authors" ? [{ id: "", label: "All authors", icon: "organization" }, ...Object.keys(authorCounts).sort().map(a => ({ id: a, label: shortAuthor(a), fullLabel: a, icon: "account" }))] : categories,
+        mode, onModeChange: setMode, items: mode === "authors" ? [{ id: "", label: "Grouped by author", icon: "organization" }, ...authorItems.map(a => ({ id: a, label: shortAuthor(a), fullLabel: a, icon: "account" }))] : categories,
         counts: mode === "authors" ? { ...authorCounts, "": matches.filter(p => category === "all" || p.category === category).length } : counts }),
+      mode === "authors" && h("div", { className: "author-filter-bar" },
+        h("label", { htmlFor: "hsl-author-filter" }, "Find an author"),
+        h("select", { id: "hsl-author-filter", "aria-label": "Filter use cases by author", value: author, onChange: e => setAuthor(e.target.value) },
+          h("option", { value: "" }, "Group work by author"),
+          ...authorItems.map(a => h("option", { key: a, value: a }, `${a} (${authorCounts[a]})`)))),
       h("div", { className: "community-summary" }, h("span", { className: "counts muted", role: "status", "aria-live": "polite" },
-        data ? `${shown.length} ${shown.length === 1 ? "use case" : "use cases"} · Nous docs · ${data.checked_at ? "Checked " + new Date(data.checked_at).toLocaleString() : "Synced " + data.checked_on}${author ? " · " + author : ""}${category !== "all" ? " · " + categories.find(c => c.id === category)?.label : ""}` : "Use cases"),
+        data ? `${shown.length} ${shown.length === 1 ? "use case" : "use cases"}${mode === "authors" && !author ? ` · ${authorGroups.length} authors` : ""} · Nous docs · ${data.checked_at ? "Checked " + new Date(data.checked_at).toLocaleString() : "Synced " + data.checked_on}${author ? " · " + author : ""}${category !== "all" ? " · " + categories.find(c => c.id === category)?.label : ""}` : "Use cases"),
         (query || author || category !== "all" || storySource) && h("button", { onClick: clear }, "Clear filters")),
       refreshNote && h("p", { className: "refresh-feedback " + (refreshError ? "error" : "muted"), role: refreshError ? "alert" : "status" }, refreshNote)),
     h("div", { className: "library-results", ref: results, tabIndex: 0, role: "region", "aria-label": "Use cases" },
       h(React.Fragment, null,
-        shown.length ? h("div", { className: "grid community-grid" }, shown.map(p => h("article", { key: p.id, className: "card community-card", "aria-label": p.name, style: { "--card-accent": p.color, "--icon-color": p.color } },
-          h("div", { className: "card-head" }, h("span", { className: "item-icon", "aria-hidden": true }, icon(p.icon)),
-            h("div", { className: "card-heading" }, h("h3", { className: "name", title: p.name }, storyCardTitle(p.name)), h("div", { className: "source", title: `${p.source} · ${p.author}` }, `${p.source} · ${shortAuthor(p.author)}`))),
-          h("div", { className: "card-summary" },
-            h("div", { className: "summary-label" }, "What people built"),
-            h("div", { className: "summary-points", role: "list", "aria-label": "What people built" },
-              h("div", { className: "summary-point", role: "listitem" },
-                h("span", { className: "summary-dot", "aria-hidden": true }, "•"),
-                h("span", { className: "summary-text", title: p.name }, p.name)))),
-          h("div", { className: "foot" },
-            h("span", { className: "badge", title: categories.find(c => c.id === p.category)?.fullLabel }, categories.find(c => c.id === p.category)?.label),
-            h(StoryPreviewButton, { ctx, story: p, revision: data.source_revision, onDetails: () => setSelected(p) }))))) : h("div", { className: "empty" }, h("p", null, "No matching use cases. Try another author, category, source, or search."), h("button", { onClick: clear }, "Reset browsing")),
+        shown.length ? mode === "authors" && !author ? h("div", { className: "author-groups" },
+          ...repeatedAuthorGroups.map(group => h("section", { key: group.author, className: "author-group", "aria-label": `Work by ${group.author}` },
+            h("div", { className: "author-group-head" },
+              h("div", { className: "author-group-name", title: group.author }, icon("account"), h("span", null, shortAuthor(group.author))),
+              h("div", { className: "author-group-meta" }, `${group.items.length} ideas · ${categoryNamesFor(group.items).join(", ")}`)),
+            storyGrid(group.items))),
+          singleAuthorStories.length && h("section", { className: "author-group", "aria-label": "More authors" },
+            h("div", { className: "author-group-head" },
+              h("div", { className: "author-group-name" }, icon("organization"), h("span", null, "More authors")),
+              h("div", { className: "author-group-meta" }, `${singleAuthorStories.length} people · one idea each`)),
+            storyGrid(singleAuthorStories))) : h("div", { className: author ? "author-collection" : "" },
+          author && h("div", { className: "author-collection-head" },
+            h("div", null, h("h2", null, `Work by ${author}`), h("p", null, `${shown.length} ${shown.length === 1 ? "idea" : "ideas"} together`)),
+            h("div", { className: "author-category-list" }, categoryNamesFor(shown).join(" · "))),
+          storyGrid(shown)) : h("div", { className: "empty" }, h("p", null, "No matching use cases. Try another author, category, source, or search."), h("button", { onClick: clear }, "Reset browsing")),
         h("div", { className: "community-bottom" }, h("p", { className: "muted" }, "Stories from the official docs. Refresh to check for updates. Stories describe users’ experiences; inclusion is not independent verification or endorsement."),
           h(ProjectLink, { ctx, url: data.source_url }, "Browse Nous docs")))),
     h(Dialog, { open: !!selected, onOpenChange: open => { if (!open) setSelected(null); } },
@@ -7287,7 +7330,7 @@ function Library({ ctx }) {
                         { className: "name", title: title(r.name) },
                         title(r.name),
                       ),
-                      h("div", { className: "source", title: `${r.source} · ${authorLabels(r).join(", ")}` }, `${r.source} · ${authorLabels(r).map(shortAuthor).join(", ")}`),
+                      h("div", { className: "source", title: `${r.source} · ${authorLabels(r).join(", ")}` }, `${r.source} · ${cardAuthor(r)}`),
                     ),
                   ),
                   h(

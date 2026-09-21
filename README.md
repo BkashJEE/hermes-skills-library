@@ -10,8 +10,8 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 - **Use Cases** brings the official Nous documentation’s user stories into the library, with category/author/source filters, details and links to the docs and original stories.
 - Skills and plugins share a compact, responsive card layout with colorful icons and brief summaries.
-- Switch **Categories / Authors** to browse chips with counts, arrows, or a keyboard-accessible slider.
-- Short author labels keep the rail readable; hover or open details for full attribution. Maintainers and repository owners are explicitly identified as fallbacks, not assumed authors.
+- Switch **Categories / Authors** to browse chips with counts, arrows, or a keyboard-accessible slider. Use Cases groups repeat contributors so their work can be viewed together, then narrowed by category.
+- Short author labels keep the rail readable, while each Skills and Plugins card includes a compact `by …` credit. Hover or open details for full attribution. Maintainers and repository owners are explicitly identified as fallbacks, not assumed authors.
 - Search, source filters, Discover/Installed views, and explicit profile selection.
 - Fixed browsing controls and a floating scrollbar. Cards open full details.
 - Skill imports preserve resource files and reuse Hermes' scanner/quarantine flow.
@@ -19,7 +19,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Requirements and status
 
-**Early community release, v0.5.2.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
+**Early community release, v0.5.3.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
 
 You need a working Hermes Desktop installation and access to its Python environment. This repository contains the plugin; it does not bundle Hermes, third-party skills, credentials, or connector packages.
 
@@ -51,7 +51,7 @@ Cards use author metadata exactly as supplied. Short labels are presentation onl
 
 ## Use cases from the Nous docs
 
-Open **Use Cases** beside Skills and Plugins to browse [Nous Research’s official User Stories & Use Cases collection](https://hermes-agent.nousresearch.com/docs/user-stories). This snapshot contains 326 stories across 15 categories, arranged in the same compact 180px flashcards as Skills and Plugins, with colorful category icons and a brief “What people built” bullet. Search by headline or author, filter by source, switch Categories / Authors, or sort A–Z. Category labels use plain language such as Coding, Everyday help, Connecting apps and Saving money; tooltips preserve the original Nous category names. **View card** shows a floating preview on hover or keyboard focus: a brief attributed story excerpt, plus the original video thumbnail for YouTube entries. Click it to open the full headline, author and source details; **Read original story** in that dialog opens the post linked by Nous; **Nous use-case docs** opens the official collection.
+Open **Use Cases** beside Skills and Plugins to browse [Nous Research’s official User Stories & Use Cases collection](https://hermes-agent.nousresearch.com/docs/user-stories). This snapshot contains 326 stories across 15 categories, arranged in the same compact 180px flashcards as Skills and Plugins, with colorful category icons and a brief “What people built” bullet. Search by headline or author, filter by source, switch Categories / Authors, or sort A–Z. Authors mode groups repeat contributors and offers an exact author selector; category chips can then narrow that author’s collection. Category labels use plain language such as Coding, Everyday help, Connecting apps and Saving money; tooltips preserve the original Nous category names. **View card** shows a floating preview on hover or keyboard focus: a brief attributed story excerpt, plus the original video thumbnail for YouTube entries. Click it to open the full headline, author and source details; **Read original story** in that dialog opens the post linked by Nous; **Nous use-case docs** opens the official collection.
 
 ![Use cases from the Nous docs](docs/community.png)
 

@@ -19,6 +19,17 @@ assert.ok(html.includes('Connecting apps'));
 assert.equal(storyVideoThumbnail('https://www.youtube.com/watch?v=CwPUOVUdApE'), 'https://i.ytimg.com/vi/CwPUOVUdApE/hqdefault.jpg');
 assert.equal(storyVideoThumbnail('https://youtube.com.evil.example/watch?v=CwPUOVUdApE'), '');
 assert.equal(storyVideoThumbnail('https://youtu.be/../../secret'), '');
+const grouped = groupStoriesByAuthor([
+  { id: 'one', author: 'Builder B' },
+  { id: 'two', author: 'Builder A' },
+  { id: 'three', author: 'Builder B' },
+]);
+assert.deepEqual(grouped.map(group => [group.author, group.items.map(item => item.id)]), [
+  ['Builder B', ['one', 'three']],
+  ['Builder A', ['two']],
+]);
+assert.equal(cardAuthor({ authors: ['Jane Doe'], author_kind: 'author' }), 'by Jane Doe');
+assert.equal(cardAuthor({ authors: [], author_kind: 'unknown' }), 'Creator not listed');
 assert.ok(!html.includes('Loading community projects'));
 console.log('Community without backend: PASS');
 `;

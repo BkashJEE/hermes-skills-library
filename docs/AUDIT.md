@@ -87,3 +87,13 @@ Added delayed pointer-hover and keyboard-focus previews using the existing Deskt
 Validation: all 22 Python tests passed, including fixed-revision preview requests, unknown-ID rejection, excerpt limits, in-memory caching and network failure behavior. JavaScript checks, backend-independent rendering, thumbnail URL validation and preview build passed. Browser checks verified live Reddit excerpts, a loaded YouTube thumbnail, keyboard opening, Escape dismissal, click-through to the existing details dialog and viewport containment at normal width and 390×844. Native Desktop behavior requires reopening the installed plugin; pointer-hover handlers use the same preview path but were not directly exercised by the available browser automation.
 
 ![Build preview](build-preview.png)
+
+## 0.5.3 Author collections and compact credits
+
+Use Cases now groups contributors with more than one story into named collections, ordered by story count. The Authors rail and an exact author selector can open one contributor’s complete collection; category chips continue to narrow that collection. Single-story contributors remain in one compact “More authors” section so the catalog does not become hundreds of headings. The bundled dataset currently contains 326 stories from 291 credited authors, including 26 repeat contributors.
+
+Skills and Plugins cards now show a small explicit `by …` credit beside the source. Missing attribution reads `Creator not listed`; full supplied credit remains available in the title text and detail view.
+
+Validation: JavaScript checks, grouping/credit unit assertions, backend-independent rendering, preview build and all 22 Python integration tests passed. Browser checks covered the complete grouped view, an exact four-story author collection, combined author/category filtering, card attribution, 326 rendered cards, zero clipped cards, no document overflow and no console warnings or errors at the tested desktop size. The visual QA report is in [`design-qa.md`](../design-qa.md). Native Desktop loading still requires reopening Hermes after the installed copy is updated.
+
+![Author collections](author-grouping.png)
