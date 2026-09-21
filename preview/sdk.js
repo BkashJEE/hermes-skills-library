@@ -4,6 +4,7 @@ export const host = {
   state: {
     profile: { get: () => "default", listen: () => () => {} },
     gateway: { listen: () => () => {} },
+    cwd: { get: () => "/workspace", listen: () => () => {} },
   },
   navigate: () => {},
 };

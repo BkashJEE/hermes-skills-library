@@ -90,7 +90,11 @@ Validation: all 22 Python tests passed, including fixed-revision preview request
 
 ## 0.5.3 Author collections and compact credits
 
-Use Cases now groups contributors with more than one story into named collections, ordered by story count. The Authors rail and an exact author selector can open one contributor’s complete collection; category chips continue to narrow that collection. Single-story contributors remain in one compact “More authors” section so the catalog does not become hundreds of headings. The bundled dataset currently contains 326 stories from 291 credited authors, including 26 repeat contributors.
+Use Cases now groups contributors with more than one story into named collections, ordered by story count. The Authors rail and an exact author selector can open one contributor's complete collection; category chips continue to narrow that collection. Single-story contributors remain in one compact “More authors” section so the catalog does not become hundreds of headings. The bundled dataset currently contains 326 stories from 291 credited authors, including 26 repeat contributors.
+
+## 0.6.0 Guided use-case recreation
+
+Every use-case card now pairs **Preview** with **Recreate**. Recreate opens a visible chat on the selected Agent and supplies the source story plus the active workspace. The kickoff prompt requires read-only inspection, asks whether the user wants a close recreation or a simpler adaptation, and makes permissions, credentials, costs, failure modes and recovery steps part of the plan. It explicitly blocks installs, edits, credential use and external actions until the user approves. The detail dialog repeats the action as **Build with Hermes** and explains the safety boundary. Older Desktop SDKs fail with an update message; browser preview does not create sessions.
 
 Skills and Plugins cards now show a small explicit `by …` credit beside the source. Missing attribution reads `Creator not listed`; full supplied credit remains available in the title text and detail view.
 

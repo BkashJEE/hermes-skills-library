@@ -110,6 +110,7 @@ const css = `
 .hsl .community-intro{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--ui-accent,#b8aacd)}.hsl .community-intro p{font-size:13px}
 .hsl .community-card .summary-text{-webkit-line-clamp:3}
 .hsl .community-card .foot .badge{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--card-accent)}
+.hsl .community-card .foot{gap:4px}.hsl .community-actions{display:flex;align-items:center;gap:2px;flex-shrink:0}.hsl .community-actions button{white-space:nowrap;padding-inline:3px}.hsl .community-build{color:var(--card-accent)}.hsl .community-build .codicon{font-size:13px}.hsl-dialog .build-explainer{margin:14px 0;padding:12px 14px;border-left:3px solid var(--build-accent,var(--ui-accent,#b8aacd));border-radius:0 7px 7px 0;background:color-mix(in srgb,var(--build-accent,var(--ui-accent,#b8aacd)) 7%,var(--ui-bg-quaternary,#24242b))}.hsl-dialog .build-explainer strong{display:block;margin-bottom:3px}.hsl-dialog .build-explainer p{font-size:12px}
 .hsl .author-filter-bar{display:flex;align-items:center;gap:10px;margin:-2px 0 8px;min-width:0}.hsl .author-filter-bar label{margin:0;white-space:nowrap}.hsl .author-filter-bar select{width:min(320px,100%)}
 .hsl .author-groups{display:grid;gap:22px}.hsl .author-group{min-width:0}.hsl .author-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 2px 9px;padding-bottom:7px;border-bottom:1px solid var(--ui-stroke-tertiary,#34343b)}.hsl .author-group-name{display:flex;align-items:center;gap:8px;min-width:0;font-weight:600}.hsl .author-group-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hsl .author-group-meta{flex-shrink:0;font-size:11px;color:var(--ui-text-tertiary,#aaa8b5)}
 .hsl .author-collection{display:grid;gap:10px}.hsl .author-collection-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:11px 13px;border:1px solid var(--ui-stroke-tertiary,#34343b);border-radius:9px;background:color-mix(in srgb,var(--ui-accent,#b8aacd) 5%,var(--card,#1c1c23))}.hsl .author-collection-head h2{font-size:15px;margin:0}.hsl .author-collection-head p{font-size:11px;margin:2px 0 0}.hsl .author-category-list{text-align:right;font-size:11px;color:var(--ui-text-tertiary,#aaa8b5)}
@@ -6555,6 +6556,83 @@ function storyCardTitle(headline) {
   const clause = headline.split(/: | — | – | where | that | so /)[0].trim();
   return clause.length >= 12 ? clause : headline;
 }
+function guidedBuildTitle(story) {
+  return "Build: " + storyCardTitle(story.name).slice(0, 62);
+}
+function guidedBuildPrompt(story, workspace = "") {
+  const category = STORY_CATEGORY_LABELS[story.category] || story.category || "Other ideas";
+  return [
+    "Help me build a setup inspired by this Hermes community use case.",
+    "",
+    `Use case: ${story.name}`,
+    `Shared by: ${story.author} on ${story.source}`,
+    `Category: ${category}`,
+    `Original story: ${story.url}`,
+    workspace ? `Current workspace: ${workspace}` : "Current workspace: use the workspace attached to this chat.",
+    "",
+    "Adapt the idea to my current workspace and requirements; do not assume the original author's environment matches mine.",
+    "Start with read-only inspection. Explain what can be reproduced, what needs adapting, and what information is missing.",
+    "Ask whether I want the closest safe recreation or a simpler adaptation, then ask a few concise questions about my intended result, budget, accounts or services, deployment target, and desired level of autonomy.",
+    "Before changing anything, show me:",
+    "- the proposed setup and steps",
+    "- the skills, plugins, and tools required",
+    "- every permission or credential needed",
+    "- likely failure modes, costs, and recovery steps",
+    "Wait for my approval before installing software, editing files or configuration, using credentials, or taking any external action.",
+    "After approval, implement the agreed setup, test it end to end, and leave clear operating and rollback instructions.",
+    "Treat the linked story as inspiration, not as verified instructions."
+  ].join("\n");
+}
+async function launchGuidedBuild(story, target) {
+  if (!target) throw new Error("Choose an Agent before starting this build.");
+  if (typeof host.requestProfile !== "function" || typeof host.openSession !== "function") {
+    throw new Error("Update Hermes Desktop to start guided builds from use-case cards.");
+  }
+  const workspace = host.state.cwd?.get?.() || "";
+  const prompt = guidedBuildPrompt(story, workspace);
+  const chatTitle = guidedBuildTitle(story);
+  let release = () => {};
+  try {
+    if (typeof host.retainProfile === "function") release = await host.retainProfile(target);
+    const created = await host.requestProfile(target, "session.create", {
+      profile: target,
+      title: chatTitle,
+      source: "desktop",
+      follow_profile_config: true,
+      ...(workspace ? { cwd: workspace } : {})
+    }, undefined, { spawnPriority: "foreground" });
+    const runtime = created?.session_id, stored = created?.stored_session_id;
+    if (!runtime || !stored) throw new Error("Hermes did not return a usable chat session.");
+    let opened = false;
+    try {
+      await host.requestProfile(target, "session.title", { session_id: runtime, title: chatTitle });
+      await host.openSession(stored, { profile: target, intent: "main", keepAllProfilesScope: false, tabTitle: chatTitle });
+      opened = true;
+    } catch {}
+    await host.requestProfile(target, "prompt.submit", { session_id: runtime, text: prompt });
+    if (!opened) await host.openSession(stored, { profile: target, intent: "main", keepAllProfilesScope: false, tabTitle: chatTitle });
+    return { runtime, stored, prompt };
+  } finally {
+    release();
+  }
+}
+function BuildWithHermesButton({ ctx, story, target, onPreview, fullLabel = false }) {
+  const [busy, setBusy] = useState(false), [failed, setFailed] = useState(false);
+  async function start() {
+    setFailed(false);
+    if (ctx.preview) { onPreview?.(); return; }
+    setBusy(true);
+    try {
+      await launchGuidedBuild(story, target);
+    } catch (error) {
+      setFailed(true);
+      host.notify?.({ kind: "error", title: "Could not start guided build", message: message(error) });
+    } finally { setBusy(false); }
+  }
+  return h("button", { className: "community-build", disabled: busy || !target, onClick: start,
+    "aria-label": `Build this use case with ${target || "the selected Agent"}`, title: ctx.preview ? "Available inside Hermes Desktop" : `Start a guided build with ${target}` },
+    icon(busy ? "loading" : failed ? "warning" : "tools"), busy ? "Starting…" : failed ? "Retry" : fullLabel ? "Build with Hermes" : "Recreate");
+}
 function storyVideoThumbnail(url) {
   try {
     const u = new URL(url);
@@ -6603,7 +6681,7 @@ function StoryPreviewButton({ ctx, story, revision, onDetails }) {
       onFocus: () => { if (pointer.current !== "touch") { cancelTimer(); setOpen(true); } },
       onBlur: event => { pointer.current = ""; if (!content.current?.contains(event.relatedTarget)) laterClose(); },
       onClick: event => { event.preventDefault(); close(); onDetails(); }
-    }, "View card", icon("arrow-right"))),
+    }, "Preview", icon("arrow-right"))),
     h(PopoverContent, {
       ref: content, className: "hsl-story-preview", "aria-label": "Build preview: " + story.name,
       side: "top", align: "end", sideOffset: 8, collisionPadding: 12,
@@ -6641,7 +6719,7 @@ function groupStoriesByAuthor(stories) {
     .map(([author, items]) => ({ author, items }))
     .sort((a, b) => b.items.length - a.items.length || a.author.localeCompare(b.author));
 }
-function Community({ ctx, onSection }) {
+function Community({ ctx, onSection, target }) {
   const [data, setData] = useState(COMMUNITY_DIRECTORY);
   const [refreshing, setRefreshing] = useState(false), [refreshNote, setRefreshNote] = useState(""), [refreshError, setRefreshError] = useState(false);
   const requestGeneration = useRef(0), refreshPending = useRef(false);
@@ -6712,7 +6790,9 @@ function Community({ ctx, onSection }) {
           h("span", { className: "summary-text", title: p.name }, p.name)))),
     h("div", { className: "foot" },
       h("span", { className: "badge", title: categories.find(c => c.id === p.category)?.fullLabel }, categories.find(c => c.id === p.category)?.label),
-      h(StoryPreviewButton, { ctx, story: p, revision: data.source_revision, onDetails: () => setSelected(p) })));
+      h("div", { className: "community-actions" },
+        h(StoryPreviewButton, { ctx, story: p, revision: data.source_revision, onDetails: () => setSelected(p) }),
+        h(BuildWithHermesButton, { ctx, story: p, target, onPreview: () => setSelected(p) }))));
   const storyGrid = stories => h("div", { className: "grid community-grid" }, stories.map(storyCard));
   return h("div", { className: "hsl community" }, h("style", null, css),
     h("div", { className: "library-header" },
@@ -6764,8 +6844,13 @@ function Community({ ctx, onSection }) {
         h(DialogTitle, null, selected.name), h(DialogDescription, null, selected.description),
         h("p", { className: "muted" }, "Story author: " + selected.author),
         h("h3", null, "About this use case"), h("ul", null, selected.highlights.map(text => h("li", { key: text }, text))),
+        h("div", { className: "build-explainer", style: { "--build-accent": selected.color } },
+          h("strong", null, "Make a version that fits your workspace"),
+          h("p", null, `Hermes will inspect first, ask about your needs, and show permissions and possible failure points before the ${target || "selected"} Agent changes anything.`)),
         h("p", { className: "muted" }, "Listed in the official Nous docs. Snapshot synced " + data.checked_on + ". Read the original story for context and details."),
-        h("div", { className: "detail-actions" }, h(ProjectLink, { ctx, url: selected.url }, "Read original story"), h(ProjectLink, { ctx, url: selected.docs_url }, "View Nous docs"), h("button", { onClick: () => setSelected(null) }, "Close")))));
+        h("div", { className: "detail-actions" },
+          h(BuildWithHermesButton, { ctx, story: selected, target, fullLabel: true, onPreview: () => {} }),
+          h(ProjectLink, { ctx, url: selected.url }, "Read original story"), h(ProjectLink, { ctx, url: selected.docs_url }, "View Nous docs"), h("button", { onClick: () => setSelected(null) }, "Close")))));
 }
 
 function Library({ ctx }) {
@@ -7084,7 +7169,7 @@ function Library({ ctx }) {
           : {}),
       }
     : null;
-  if (section === "community") return h(Community, { ctx, onSection: setSection });
+  if (section === "community") return h(Community, { ctx, onSection: setSection, target });
   return h(
     "div",
     { className: "hsl" },
