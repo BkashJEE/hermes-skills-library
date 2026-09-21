@@ -2,6 +2,13 @@
 
 Notable changes to this project are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases use semantic versioning while the project remains pre-1.0.
 
+## 0.6.2 - 2026-09-21
+
+### Fixed
+
+- Guided recreation now resolves the selected Agent through `host.profileRoutes()` and uses the same route for session retention, creation, opening and prompt submission.
+- Duplicate profile names across local and remote connections are constrained to the active Hermes connection instead of relying on ambiguous profile-only routing.
+
 ## 0.6.1 - 2026-09-21
 
 ### Added

@@ -6590,6 +6590,35 @@ function guidedBuildPrompt(story, workspace = "") {
     "Do not install software, edit files or configuration, create a Bot, use credentials, schedule routines, or take external actions before approval."
   ].join("\n");
 }
+async function guidedBuildRoute(target) {
+  if (typeof host.profileRoutes !== "function") return target;
+  let routes;
+  try {
+    routes = await host.profileRoutes();
+  } catch (error) {
+    throw new Error("Could not resolve the selected Agent route. " + message(error));
+  }
+  const matches = (Array.isArray(routes) ? routes : []).filter((route) => {
+    const profile = String(route?.targetProfile || route?.profile || "");
+    return profile === target;
+  });
+  const activeConnection = String(
+    host.state.connectionId?.get?.() || host.activeConnectionId?.() || "",
+  );
+  const candidates = activeConnection
+    ? matches.filter((route) => String(route?.connectionId || "") === activeConnection)
+    : matches;
+  if (candidates.length === 1) return candidates[0];
+  if (candidates.length > 1) {
+    throw new Error(`Agent "${target}" has more than one route on the active connection.`);
+  }
+  if (!activeConnection && matches.length === 1) return matches[0];
+  throw new Error(
+    activeConnection
+      ? `Agent "${target}" is not available on the active Hermes connection. Refresh the library and choose the Agent again.`
+      : `Could not identify which Hermes connection owns Agent "${target}". Select its connection and try again.`,
+  );
+}
 async function launchGuidedBuild(story, target) {
   if (!target) throw new Error("Choose an Agent before starting this build.");
   if (typeof host.requestProfile !== "function" || typeof host.openSession !== "function") {
@@ -6600,8 +6629,10 @@ async function launchGuidedBuild(story, target) {
   const chatTitle = guidedBuildTitle(story);
   let release = () => {};
   try {
-    if (typeof host.retainProfile === "function") release = await host.retainProfile(target);
-    const created = await host.requestProfile(target, "session.create", {
+    const route = await guidedBuildRoute(target);
+    const routedOpen = typeof route === "string" ? {} : { route };
+    if (typeof host.retainProfile === "function") release = await host.retainProfile(route);
+    const created = await host.requestProfile(route, "session.create", {
       profile: target,
       title: chatTitle,
       source: "desktop",
@@ -6612,12 +6643,12 @@ async function launchGuidedBuild(story, target) {
     if (!runtime || !stored) throw new Error("Hermes did not return a usable chat session.");
     let opened = false;
     try {
-      await host.requestProfile(target, "session.title", { session_id: runtime, title: chatTitle });
-      await host.openSession(stored, { profile: target, intent: "main", keepAllProfilesScope: false, tabTitle: chatTitle });
+      await host.requestProfile(route, "session.title", { session_id: runtime, title: chatTitle });
+      await host.openSession(stored, { ...routedOpen, profile: target, intent: "main", keepAllProfilesScope: false, tabTitle: chatTitle });
       opened = true;
     } catch {}
-    await host.requestProfile(target, "prompt.submit", { session_id: runtime, text: prompt });
-    if (!opened) await host.openSession(stored, { profile: target, intent: "main", keepAllProfilesScope: false, tabTitle: chatTitle });
+    await host.requestProfile(route, "prompt.submit", { session_id: runtime, text: prompt });
+    if (!opened) await host.openSession(stored, { ...routedOpen, profile: target, intent: "main", keepAllProfilesScope: false, tabTitle: chatTitle });
     return { runtime, stored, prompt };
   } finally {
     release();

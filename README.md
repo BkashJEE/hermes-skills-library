@@ -22,7 +22,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Requirements and status
 
-**Early community release, v0.6.1.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
+**Early community release, v0.6.2.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
 
 You need a working Hermes Desktop installation and access to its Python environment. This repository contains the plugin; it does not bundle Hermes, third-party skills, credentials, or connector packages.
 

@@ -100,6 +100,10 @@ Every use-case card now pairs **Preview** with **Recreate**. Recreate opens a vi
 
 Recreate now analyzes the source workflow before inspecting the user's environment. The staged prompt maps the goal, trigger, inputs, ordered steps, tools, outputs, human review, permissions, failure modes, costs and recovery path while separating sourced facts from assumptions. It then recommends the selected Agent or a dedicated Bot. Dedicated Bots receive a Bot Forge-style blueprint for role/SOUL, workspace, capabilities, integrations, routines, memory, permissions, observability, tests and rollback. The final creation stage remains approval-gated and uses Hermes's supported Bot/Profile creation flow.
 
+## 0.6.2 Routed guided builds
+
+Guided recreation resolves the selected Agent with `host.profileRoutes()` and keeps that exact route through session retention, creation, opening and prompt submission. When local and remote connections expose the same profile name, the active Desktop connection selects the owner. Automated coverage reproduces the duplicate `ceo` route topology that previously caused native Desktop to reject profile-only routing.
+
 Skills and Plugins cards now show a small explicit `by …` credit beside the source. Missing attribution reads `Creator not listed`; full supplied credit remains available in the title text and detail view.
 
 Validation: JavaScript checks, grouping/credit unit assertions, backend-independent rendering, preview build and all 22 Python integration tests passed. Browser checks covered the complete grouped view, an exact four-story author collection, combined author/category filtering, card attribution, 326 rendered cards, zero clipped cards, no document overflow and no console warnings or errors at the tested desktop size. The visual QA report is in [`design-qa.md`](../design-qa.md). Native Desktop loading still requires reopening Hermes after the installed copy is updated.

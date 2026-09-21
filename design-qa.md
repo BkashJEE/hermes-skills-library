@@ -2,7 +2,7 @@
 
 Date: 2026-09-21
 
-Release: 0.6.1
+Release: 0.6.2
 
 Final result: passed
 
