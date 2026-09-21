@@ -1,7 +1,22 @@
 # Hermes Skills & Plugins Library
 
 [![Check](https://github.com/BkashJEE/hermes-skills-library/actions/workflows/check.yml/badge.svg)](https://github.com/BkashJEE/hermes-skills-library/actions/workflows/check.yml)
+[![Dependabot](https://img.shields.io/badge/Dependabot-reports-025E8C?logo=dependabot&logoColor=white)](https://github.com/BkashJEE/hermes-skills-library/security/dependabot)
+[![Security policy](https://img.shields.io/badge/Security-policy-8b5cf6?logo=github)](SECURITY.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
+
+<details>
+<summary><strong>Repository reports</strong></summary>
+
+| Report | Open in GitHub |
+| --- | --- |
+| Build, tests and npm audit | [Actions report](https://github.com/BkashJEE/hermes-skills-library/actions/workflows/check.yml) |
+| Vulnerable dependencies | [Dependabot alerts](https://github.com/BkashJEE/hermes-skills-library/security/dependabot) |
+| Dependency update history | [Dependabot pull requests](https://github.com/BkashJEE/hermes-skills-library/pulls?q=is%3Apr+author%3Aapp%2Fdependabot) |
+| Releases and notes | [Release report](https://github.com/BkashJEE/hermes-skills-library/releases) |
+| Contribution readiness | [Community standards](https://github.com/BkashJEE/hermes-skills-library/community) |
+
+</details>
 
 A community-built **Skills & Plugins** sidebar tab for Hermes Desktop. Browse compact flashcards, understand a capability before opening it, and filter by category or author.
 

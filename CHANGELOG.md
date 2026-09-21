@@ -8,6 +8,7 @@ Notable changes to this project are recorded here. The format follows [Keep a Ch
 
 - Discover now contains only capabilities available to add, while Installed contains only capabilities already present on the selected Agent.
 - The two views use a compact segmented control with icons and live counts, plus view-specific summaries and empty states.
+- The README now includes a compact repository-health widget linking to CI, Dependabot, security, release and community reports.
 
 ## 0.6.2 - 2026-09-21
 
