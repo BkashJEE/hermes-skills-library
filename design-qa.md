@@ -2,7 +2,7 @@
 
 Date: 2026-09-21
 
-Release: 0.6.0
+Release: 0.6.1
 
 Final result: passed
 
@@ -22,7 +22,7 @@ The header, tabs, toolbar, category rail, count line, fixed results pane and 180
 - **Preview** retains the existing lightweight popover and details behavior.
 - **Recreate** uses the card accent color and the existing Codicon family, so it reads as an action without adding another filled control.
 - The details dialog adds one tinted explanation block and a full **Build with Hermes** action. It fits within the existing 620px dialog and keeps the source links and Close action visible without scrolling at the tested viewport.
-- The explanation uses plain language: inspect first, ask about needs, show permissions and failure points, then change only after approval.
+- The explanation uses plain language: map the workflow first, recommend the current Agent or a dedicated Bot, then create only after review.
 
 ## Required surfaces
 
@@ -37,7 +37,7 @@ The header, tabs, toolbar, category rail, count line, fixed results pane and 180
 - All 326 cards render **Preview** and **Recreate** with unique accessible names tied to the story and selected Agent.
 - Browser preview makes the environment limit explicit and opens the explanatory details dialog instead of creating a chat.
 - The dialog exposes the story, author, source, recreation boundary, original link and Nous docs link.
-- The generated Hermes prompt contains the active workspace, source attribution, close-recreation/adaptation choice, read-only first step, permissions, credentials, costs, failure modes, recovery steps and an approval gate.
+- The generated Hermes prompt contains source-first workflow mapping, the active workspace, source attribution, fact/assumption separation, close-recreation/adaptation choice, read-only inspection, an Agent-versus-Bot recommendation, Bot Forge-style blueprint, permissions, credentials, costs, failure modes, recovery steps and an approval gate.
 - Automated launch-contract coverage verifies routed session retention, foreground session creation, eager title, visible session open, prompt submission and release order.
 
 ## Findings
