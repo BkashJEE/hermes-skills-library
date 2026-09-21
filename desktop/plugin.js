@@ -542,6 +542,113 @@ function authorLabels(row) {
 }
 
 
+// BEGIN GENERATED COMMUNITY DIRECTORY
+const COMMUNITY_DIRECTORY = {
+  "checked_on": "2026-09-20",
+  "main_url": "https://github.com/NousResearch/hermes-agent",
+  "projects": [
+    {
+      "id": "hermes-live-voice",
+      "name": "Hermes Live Voice",
+      "author": "bielcarpi",
+      "category": "voice",
+      "icon": "mic",
+      "color": "#64c8bd",
+      "description": "Talk while Hermes works in the background.",
+      "highlights": [
+        "Continuous voice conversations with task progress.",
+        "Resume conversations and receive completion notices after reconnecting."
+      ],
+      "url": "https://github.com/bielcarpi/hermes-live-voice"
+    },
+    {
+      "id": "hermes-hud",
+      "name": "Hermes HUD",
+      "author": "Diabloluo",
+      "category": "interfaces",
+      "icon": "dashboard",
+      "color": "#779df1",
+      "description": "A local dashboard for understanding your agent.",
+      "highlights": [
+        "Explore activity, sessions, token usage and costs.",
+        "Inspect health, scheduled jobs and incidents."
+      ],
+      "url": "https://github.com/Diabloluo/hermes-hud"
+    },
+    {
+      "id": "provider-chains",
+      "name": "Provider Chains",
+      "author": "risers-chevron",
+      "category": "workflows",
+      "icon": "git-branch",
+      "color": "#d5a45e",
+      "description": "Give your agent a named model fallback chain.",
+      "highlights": [
+        "Configure provider fallback chains for Hermes.",
+        "Explore the project documentation for setup and compatibility."
+      ],
+      "url": "https://github.com/risers-chevron/hermes-provider-chains"
+    },
+    {
+      "id": "hermes-atlas",
+      "name": "Hermes Atlas",
+      "author": "ksimback",
+      "category": "resources",
+      "icon": "map",
+      "color": "#b49ade",
+      "description": "Find your way through the Hermes ecosystem.",
+      "highlights": [
+        "Explore a curated catalog of community tools.",
+        "Read guidance on installation, modes and skills."
+      ],
+      "url": "https://github.com/ksimback/hermes-ecosystem"
+    },
+    {
+      "id": "awesome-hermes",
+      "name": "Awesome Hermes Agent",
+      "author": "0xNyk",
+      "category": "resources",
+      "icon": "library",
+      "color": "#79b99b",
+      "description": "A community directory of tools and guides.",
+      "highlights": [
+        "Browse skills, plugins, memory providers and interfaces.",
+        "Follow links to original projects and learning resources."
+      ],
+      "url": "https://github.com/0xNyk/awesome-hermes-agent"
+    },
+    {
+      "id": "hermes-usecases",
+      "name": "Hermes Use Cases",
+      "author": "aliaihub",
+      "category": "resources",
+      "icon": "lightbulb",
+      "color": "#d992b8",
+      "description": "Discover examples of what people do with Hermes.",
+      "highlights": [
+        "Explore real-world use cases and workflows.",
+        "Follow the supporting primary sources for each example."
+      ],
+      "url": "https://github.com/aliaihub/awesome-hermes-usecases"
+    },
+    {
+      "id": "skills-library",
+      "name": "Skills & Plugins Library",
+      "author": "BkashJEE",
+      "category": "interfaces",
+      "icon": "extensions",
+      "color": "#73bdde",
+      "description": "The community-built library you are browsing.",
+      "highlights": [
+        "Discover compact cards with category and author filters.",
+        "Explore the code or contribute your own improvements."
+      ],
+      "url": "https://github.com/BkashJEE/hermes-skills-library"
+    }
+  ]
+};
+// END GENERATED COMMUNITY DIRECTORY
+
 const COMMUNITY_CATEGORIES = [
   { id: "all", label: "All builds", icon: "globe" },
   { id: "voice", label: "Voice", icon: "mic" },
@@ -574,16 +681,10 @@ function ProjectLink({ ctx, url, children, className = "" }) {
         h("pre", null, url), h("button", { onClick: () => setError("") }, "Close"))));
 }
 function Community({ ctx, onSection }) {
-  const [data, setData] = useState(null), [error, setError] = useState("");
+  const data = COMMUNITY_DIRECTORY;
   const [query, setQuery] = useState(""), [category, setCategory] = useState("all"), [author, setAuthor] = useState("");
   const [mode, setMode] = useState("categories"), [sort, setSort] = useState("curated"), [selected, setSelected] = useState(null);
-  const [reload, setReload] = useState(0);
   const results = useRef(null);
-  useEffect(() => {
-    let live = true; setError(""); setData(null);
-    ctx.rest("/community").then(value => { if (live) setData(value); }).catch(e => { if (live) setError(message(e)); });
-    return () => { live = false; };
-  }, [ctx, reload]);
   useEffect(() => { results.current?.scrollTo({ top: 0 }); }, [query, category, author, sort]);
   const projects = data?.projects || [];
   const matches = projects.filter(p => `${p.name} ${p.author} ${p.description} ${p.highlights.join(" ")}`.toLowerCase().includes(query.toLowerCase().trim()));
@@ -614,7 +715,6 @@ function Community({ ctx, onSection }) {
         data ? `${shown.length} ${shown.length === 1 ? "project" : "projects"} · Curated selection · Sources checked ${data.checked_on}${author ? " · " + author : ""}${category !== "all" ? " · " + COMMUNITY_CATEGORIES.find(c => c.id === category)?.label : ""}` : "Community projects"),
         (query || author || category !== "all") && h("button", { onClick: clear }, "Clear filters"))),
     h("div", { className: "library-results", ref: results, tabIndex: 0, role: "region", "aria-label": "Community projects" },
-      error ? h("div", { className: "notice error", role: "alert" }, error, h("button", { onClick: () => setReload(n => n + 1) }, "Try again")) : !data ? h("p", { role: "status" }, "Loading community projects…") :
       h(React.Fragment, null,
         h("div", { className: "community-intro" }, icon("lightbulb"), h("p", null, "Community projects and resources, linked to their original repositories. Explore a build to see what it does.")),
         shown.length ? h("div", { className: "grid community-grid" }, shown.map(p => h("article", { key: p.id, className: "card community-card", "aria-label": p.name, style: { "--card-accent": p.color, "--icon-color": p.color } },

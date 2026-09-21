@@ -61,3 +61,7 @@ Screenshots were captured and inspected during this audit from the local preview
 Added seven source-linked public entries, shared section navigation, category/author rail, search, alphabetical sorting, detail dialogs and upstream/project links. Verified filtering to one builder/project, zero-result recovery, Escape dismissal, A–Z order and switching back to Skills/Plugins in the browser preview. At 390×844, there was no horizontal overflow or clipped card footer; the Community results pane retained 489px. Reduced-motion styles disable card movement. All 12 Python tests and the preview build passed. Desktop external opening uses the documented `ctx.os.openExternal` capability; native browser launching still needs live Electron verification. The collection is curated and bundled rather than a live social feed.
 
 ![Community showcase](community.png)
+
+## 0.4.1 Desktop loading fix
+
+A Desktop-only blank Community report exposed an unnecessary dependency on a newly added backend route. The browser preview route was healthy, but that did not establish availability in the running Desktop backend. Community now renders immediately from a committed, generated snapshot of the public directory. A regression test renders the real component with a backend that throws, and asserts every project link is present. CI checks snapshot synchronization and this regression. The fix does not restart gateways or require profile access. Native Desktop reload remains a user-side verification step.

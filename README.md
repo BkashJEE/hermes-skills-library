@@ -19,7 +19,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Requirements and status
 
-**Early community release, v0.4.0.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
+**Early community release, v0.4.1.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
 
 You need a working Hermes Desktop installation and access to its Python environment. This repository contains the plugin; it does not bundle Hermes, third-party skills, credentials, or connector packages.
 
@@ -55,7 +55,7 @@ Open **Community** beside Skills and Plugins to explore a curated selection of p
 
 ![Community showcase](docs/community.png)
 
-The initial collection includes voice, dashboards, fallback workflows and community directories. It is bundled in `dashboard/community.json`, works without social sign-in and is not a live or exhaustive feed. Source checks establish that links and descriptions match the projects; they do not certify safety or compatibility. **Suggest a build** opens an issue form for you to complete.
+The initial collection includes voice, dashboards, fallback workflows and community directories. Its source is `dashboard/community.json`, embedded into the Desktop entry so projects appear even when the backend is unavailable. It works without social sign-in and is not a live or exhaustive feed. Source checks establish that links and descriptions match the projects; they do not certify safety or compatibility. **Suggest a build** opens an issue form for you to complete.
 
 ## Optional local skill sources
 

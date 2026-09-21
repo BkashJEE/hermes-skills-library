@@ -14,6 +14,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run check
       - run: npm run build:preview
+      - run: npm run test:community
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'

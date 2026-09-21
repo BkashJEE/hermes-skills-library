@@ -21,3 +21,5 @@ Remote Hermes connections require the backend on the remote machine. The local i
 To recover, disable this plugin and reopen Hermes. Installed skills and other plugins remain available through Hermes' built-in management screens. Preserve backups and compare config changes before restoring an older entire configuration over newer settings.
 
 The Community tab serves a bundled, curated public directory without reading profiles or contacting project sites. External links open only when clicked (through the Desktop SDK on supported hosts, normal links in the browser preview). The collection is updated through repository contributions, not automatic social-feed scraping. Inclusion does not establish installability or compatibility.
+
+Community ships inside the Desktop entry as of 0.4.1; it does not wait on a backend route. If upgrading from 0.4.0, reload the Desktop plugin or reopen Desktop to load the new JavaScript. The public `/community` backend route remains available for consumers.

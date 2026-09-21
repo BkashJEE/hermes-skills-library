@@ -11,3 +11,5 @@ Author corrections should preserve original full credits. Do not assume a reposi
 ## Suggest a community build
 
 Open an issue with the original public repository, repository owner, a short factual description, category and two things people can explore. Entries live in `dashboard/community.json`. Verify the primary source, update `checked_on` when the collection is reviewed, and keep claims brief. Do not add tracking links, private posts, scraped personal data, invented ratings or unverified installation promises. The showcase is curated, not a live feed or an endorsement.
+
+After editing the community directory, run `npm run sync:community` to update the committed Desktop snapshot. `npm run check` verifies it matches, and `npm run test:community` checks that projects render without a backend.
