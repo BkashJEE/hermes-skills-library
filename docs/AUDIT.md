@@ -69,3 +69,7 @@ A Desktop-only blank Community report exposed an unnecessary dependency on a new
 ## 0.5.0 Official documentation source
 
 Replaced the independent seven-project collection with 326 entries from Nous Research’s official User Stories & Use Cases dataset at revision `299c652a66bcc915a2a1e10cd2b648f196ec4bba`. Preserved the upstream story titles, author credits, 15 categories, source platforms and original links. Added a source filter and explicit docs links; removed repository-owner and GitHub-only assumptions. Third-party post quotations are omitted. The collection remains bundled for immediate Desktop rendering. Source metadata is attributed under the upstream MIT notice.
+
+### Compact Use Cases layout
+
+Use Cases now shares Skills and Plugins card geometry: 180px height, 200px minimum grid columns, 26px icons, brief bullet content and an aligned View card footer. Category and shortened author attribution remain visible; full headlines and original-story/docs links remain in the detail dialog. Browser preview checks at its normal viewport and 390×844 found no horizontal overflow or summary/footer overlap across all 326 cards. The backend-independent rendering regression and JavaScript checks passed. Native Desktop rendering still requires reopening the installed plugin.

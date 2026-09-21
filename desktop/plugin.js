@@ -102,10 +102,8 @@ const css = `
 .hsl .project-link:focus-visible,.hsl-dialog .project-link:focus-visible{outline:2px solid var(--ui-accent,#b8aacd);outline-offset:3px}
 .hsl .community-sort{width:160px}.hsl .community-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.hsl .community-summary button{padding:4px 8px;font-size:12px}
 .hsl .community-intro{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--ui-accent,#b8aacd)}.hsl .community-intro p{font-size:13px}
-.hsl .community-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
-.hsl .community-card{height:216px;padding:14px;transition:transform .15s,border-color .15s}.hsl .community-card:hover{transform:translateY(-2px)}
-.hsl .community-card .name{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;white-space:normal;line-height:1.35;font-size:13px}.hsl .community-card .item-icon{width:32px;height:32px;box-shadow:inset 0 1px 0 #ffffff30,0 3px 6px #0003;background:linear-gradient(145deg,color-mix(in srgb,var(--icon-color) 35%,transparent),color-mix(in srgb,var(--icon-color) 12%,transparent))}
-.hsl .project-category{font-size:10px;color:var(--card-accent);margin-top:10px}.hsl .project-description{font-size:13px;line-height:1.45;margin:5px 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hsl .community-card .summary-text{-webkit-line-clamp:3}
+.hsl .community-card .foot .badge{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--card-accent)}
 .hsl .community-bottom{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:20px}.hsl .community-bottom p{font-size:12px;max-width:640px}.community-detail li{margin-bottom:10px}.community-detail .detail-actions .project-link{background:var(--ui-bg-quaternary,#24242b)}
 @media(prefers-reduced-motion:reduce){.hsl .community-card{transition:none}.hsl .community-card:hover{transform:none}}
 @container(max-width:540px){.hsl .community-sort{width:100%}.hsl.community .top>.project-link{font-size:11px}.hsl .sections{gap:22px}.hsl .community-intro{margin-bottom:10px}}
@@ -6542,6 +6540,11 @@ function ProjectLink({ ctx, url, children, className = "" }) {
         h(DialogDescription, null, "Desktop could not open your browser. Copy this address to open the project:"),
         h("pre", null, url), h("button", { onClick: () => setError("") }, "Close"))));
 }
+function storyCardTitle(headline) {
+  // Use the leading clause as a compact label; the full upstream headline stays in the bullet and dialog.
+  const clause = headline.split(/: | — | – | where | that | so /)[0].trim();
+  return clause.length >= 12 ? clause : headline;
+}
 function Community({ ctx, onSection }) {
   const data = COMMUNITY_DIRECTORY;
   const [query, setQuery] = useState(""), [category, setCategory] = useState("all"), [author, setAuthor] = useState("");
@@ -6581,14 +6584,18 @@ function Community({ ctx, onSection }) {
         (query || author || category !== "all" || storySource) && h("button", { onClick: clear }, "Clear filters"))),
     h("div", { className: "library-results", ref: results, tabIndex: 0, role: "region", "aria-label": "Use cases" },
       h(React.Fragment, null,
-        h("div", { className: "community-intro" }, icon("lightbulb"), h("p", null, "From Nous’s User Stories & Use Cases collection. Open a card for details or follow the original story.")),
         shown.length ? h("div", { className: "grid community-grid" }, shown.map(p => h("article", { key: p.id, className: "card community-card", "aria-label": p.name, style: { "--card-accent": p.color, "--icon-color": p.color } },
           h("div", { className: "card-head" }, h("span", { className: "item-icon", "aria-hidden": true }, icon(p.icon)),
-            h("div", { className: "card-heading" }, h("h3", { className: "name", title: p.name }, p.name), h("div", { className: "source", title: p.author }, "by " + p.author))),
-          h("div", { className: "project-category" }, COMMUNITY_CATEGORIES.find(c => c.id === p.category)?.label),
-          h("p", { className: "project-description" }, p.description),
-          h("div", { className: "foot" }, h("button", { onClick: () => setSelected(p), "aria-label": "Explore " + p.name }, "View use case", icon("arrow-right")),
-            h(ProjectLink, { ctx, url: p.url }, "Original story"))))) : h("div", { className: "empty" }, h("p", null, "No matching use cases. Try another author, category, source, or search."), h("button", { onClick: clear }, "Reset browsing")),
+            h("div", { className: "card-heading" }, h("h3", { className: "name", title: p.name }, storyCardTitle(p.name)), h("div", { className: "source", title: `${p.source} · ${p.author}` }, `${p.source} · ${shortAuthor(p.author)}`))),
+          h("div", { className: "card-summary" },
+            h("div", { className: "summary-label" }, "What people built"),
+            h("div", { className: "summary-points", role: "list", "aria-label": "What people built" },
+              h("div", { className: "summary-point", role: "listitem" },
+                h("span", { className: "summary-dot", "aria-hidden": true }, "•"),
+                h("span", { className: "summary-text", title: p.name }, p.name)))),
+          h("div", { className: "foot" },
+            h("span", { className: "badge", title: COMMUNITY_CATEGORIES.find(c => c.id === p.category)?.label }, COMMUNITY_CATEGORIES.find(c => c.id === p.category)?.label),
+            h("button", { onClick: () => setSelected(p), "aria-label": "View card: " + p.name }, "View card", icon("arrow-right")))))) : h("div", { className: "empty" }, h("p", null, "No matching use cases. Try another author, category, source, or search."), h("button", { onClick: clear }, "Reset browsing")),
         h("div", { className: "community-bottom" }, h("p", { className: "muted" }, "A bundled snapshot of the official docs. Stories describe users’ experiences; inclusion is not independent verification or endorsement."),
           h(ProjectLink, { ctx, url: data.source_url }, "Browse Nous docs")))),
     h(Dialog, { open: !!selected, onOpenChange: open => { if (!open) setSelected(null); } },

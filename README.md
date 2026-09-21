@@ -51,7 +51,7 @@ Cards use author metadata exactly as supplied. Short labels are presentation onl
 
 ## Use cases from the Nous docs
 
-Open **Use Cases** beside Skills and Plugins to browse [Nous Research’s official User Stories & Use Cases collection](https://hermes-agent.nousresearch.com/docs/user-stories). This snapshot contains 326 stories across 15 categories. Search by headline or author, filter by source, switch Categories / Authors, or sort A–Z. **View use case** opens details; **Original story** opens the post linked by Nous; **Nous use-case docs** opens the official collection.
+Open **Use Cases** beside Skills and Plugins to browse [Nous Research’s official User Stories & Use Cases collection](https://hermes-agent.nousresearch.com/docs/user-stories). This snapshot contains 326 stories across 15 categories, arranged in the same compact 180px flashcards as Skills and Plugins, with colorful category icons and a brief “What people built” bullet. Search by headline or author, filter by source, switch Categories / Authors, or sort A–Z. **View card** opens the full headline, author and source details; **Read original story** in that dialog opens the post linked by Nous; **Nous use-case docs** opens the official collection.
 
 ![Use cases from the Nous docs](docs/community.png)
 

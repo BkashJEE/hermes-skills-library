@@ -12,9 +12,9 @@ const html = renderToString(h(Community, {
   ctx: { rest() { throw new Error('Backend unavailable'); } }, onSection() {}
 }));
 assert.ok(html.includes(COMMUNITY_DIRECTORY.projects.length + ' use cases'));
-for (const project of COMMUNITY_DIRECTORY.projects) {
-  assert.ok(html.includes(project.url.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')), 'Missing project link: ' + project.id);
-}
+assert.equal((html.match(/class="card community-card"/g) || []).length, COMMUNITY_DIRECTORY.projects.length);
+assert.ok(html.includes('What people built'));
+assert.ok(html.includes('View card'));
 assert.ok(!html.includes('Loading community projects'));
 console.log('Community without backend: PASS');
 `;
