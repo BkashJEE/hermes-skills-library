@@ -15,14 +15,14 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 - Skills and plugins share a compact, responsive card layout with colorful icons and brief summaries.
 - Switch **Categories / Authors** to browse chips with counts, arrows, or a keyboard-accessible slider. Use Cases groups repeat contributors so their work can be viewed together, then narrowed by category.
 - Short author labels keep the rail readable, while each Skills and Plugins card includes a compact `by …` credit. Hover or open details for full attribution. Maintainers and repository owners are explicitly identified as fallbacks, not assumed authors.
-- Search, source filters, Discover/Installed views, and explicit profile selection.
+- Search, source filters, explicit profile selection, and distinct Discover/Installed views with live counts. Discover contains only capabilities available to add; Installed contains only capabilities already on the selected Agent.
 - Fixed browsing controls and a floating scrollbar. Cards open full details.
 - Skill imports preserve resource files and reuse Hermes' scanner/quarantine flow.
 - Plugin imports reuse Hermes' existing installer, begin disabled, and reject duplicates. Catalog imports preserve the reviewed revision.
 
 ## Requirements and status
 
-**Early community release, v0.6.2.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
+**Early community release, v0.6.3.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
 
 You need a working Hermes Desktop installation and access to its Python environment. This repository contains the plugin; it does not bundle Hermes, third-party skills, credentials, or connector packages.
 

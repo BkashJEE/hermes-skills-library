@@ -2,6 +2,13 @@
 
 Notable changes to this project are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases use semantic versioning while the project remains pre-1.0.
 
+## 0.6.3 - 2026-09-21
+
+### Changed
+
+- Discover now contains only capabilities available to add, while Installed contains only capabilities already present on the selected Agent.
+- The two views use a compact segmented control with icons and live counts, plus view-specific summaries and empty states.
+
 ## 0.6.2 - 2026-09-21
 
 ### Fixed

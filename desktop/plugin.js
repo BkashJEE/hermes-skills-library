@@ -73,6 +73,11 @@ const css = `
 .hsl .sections button{padding:9px 0}
 .hsl .toolbar{margin:10px 0}
 .hsl .filters{margin-bottom:10px}
+.hsl .tabs{gap:3px;padding:3px;border:1px solid var(--ui-stroke-quaternary,#2c2b34);border-radius:10px;background:var(--ui-bg-tertiary,#191920)}
+.hsl .tabs button{display:flex;align-items:center;gap:7px;padding:6px 10px}
+.hsl .tabs .active{box-shadow:inset 0 0 0 1px var(--ui-stroke-tertiary,#3a3943)}
+.hsl .view-count{min-width:22px;padding:1px 6px;border-radius:999px;background:var(--ui-bg-quaternary,#292930);font-size:10px;text-align:center;color:var(--ui-text-tertiary,#aaa8b5)}
+.hsl .tabs .active .view-count{background:var(--ui-bg-secondary,#343440);color:var(--ui-text-primary,#eeedf2)}
 .hsl .category-heading{margin-bottom:6px}
 .hsl .category-slider{height:18px;margin-top:4px}
 .hsl .categories{margin-bottom:8px}
@@ -6891,6 +6896,11 @@ function Community({ ctx, onSection, target }) {
           h(ProjectLink, { ctx, url: selected.url }, "Read original story"), h(ProjectLink, { ctx, url: selected.docs_url }, "View Nous docs"), h("button", { onClick: () => setSelected(null) }, "Close")))));
 }
 
+function libraryViewRows(rows, tab) {
+  if (tab === "Installed") return rows.filter((row) => row.kind === "installed");
+  if (tab === "Discover") return rows.filter((row) => row.kind !== "installed" && !row.installed);
+  return rows;
+}
 function Library({ ctx }) {
   const [profiles, setProfiles] = useState([]),
     [target, setTarget] = useState(""),
@@ -7144,12 +7154,17 @@ function Library({ ctx }) {
   const installedNames = new Map(
     rows.filter((r) => r.kind === "installed").map((r) => [r.name, r]),
   );
-  const prepared = (tab === "Hub results" ? hub || [] : rows).map((r) => {
+  const prepareRows = (items) => items.map((r) => {
     const got = section === "skills" ? installedNames.get(r.name) : null;
     return got ? { ...r, installed: true, enabled: got.enabled } : r;
   });
+  const basePrepared = prepareRows(rows);
+  const prepared = tab === "Hub results" ? prepareRows(hub || []) : basePrepared;
+  const availableCount = libraryViewRows(basePrepared, "Discover").length;
+  const installedCount = installedNames.size;
+  const viewRows = libraryViewRows(prepared, tab);
   const q = query.toLowerCase().trim();
-  const candidates = prepared
+  const candidates = viewRows
     .filter(
       (r) =>
         (!q ||
@@ -7157,12 +7172,7 @@ function Library({ ctx }) {
             .toLowerCase()
             .includes(q) ||
           tab === "Hub results") &&
-        (tab !== "Installed" || r.kind === "installed") &&
-        (source === "All sources" || r.source === source) &&
-        (tab === "Hub results" ||
-          source !== "All sources" ||
-          r.kind === "installed" ||
-          !r.installed),
+        (source === "All sources" || r.source === source),
     )
     .sort((a, b) => a.name.localeCompare(b.name));
   const authorCounts = new Map();
@@ -7207,6 +7217,12 @@ function Library({ ctx }) {
           : {}),
       }
     : null;
+  const resultLabel = filtered.length === 1 ? section.slice(0, -1) : section;
+  const viewSummary = tab === "Installed"
+    ? `${filtered.length} installed ${resultLabel} for ${target || "…"} · ${availableCount} available`
+    : tab === "Discover"
+      ? `${filtered.length} available ${resultLabel} · ${installedCount} installed for ${target || "…"}`
+      : `${filtered.length} online ${resultLabel} · ${installedCount} installed for ${target || "…"}`;
   if (section === "community") return h(Community, { ctx, onSection: setSection, target });
   return h(
     "div",
@@ -7319,17 +7335,23 @@ function Library({ ctx }) {
         h(
           "div",
           { className: "tabs", "aria-label": "Library view" },
-          ["Discover", "Installed", ...(hub ? ["Hub results"] : [])].map(
-            (value) =>
+          [
+            { id: "Discover", icon: "search", count: availableCount },
+            { id: "Installed", icon: "check-all", count: installedCount },
+            ...(hub ? [{ id: "Hub results", icon: "globe", count: hub.length }] : []),
+          ].map(
+            (item) =>
               h(
                 "button",
                 {
-                  key: value,
-                  className: tab === value ? "active" : "",
-                  "aria-pressed": tab === value,
-                  onClick: () => setTab(value),
+                  key: item.id,
+                  className: tab === item.id ? "active" : "",
+                  "aria-pressed": tab === item.id,
+                  onClick: () => { setTab(item.id); setSource("All sources"); },
                 },
-                value,
+                icon(item.icon),
+                item.id,
+                h("span", { className: "view-count" }, item.count),
               ),
           ),
         ),
@@ -7342,7 +7364,7 @@ function Library({ ctx }) {
             value: source,
             onChange: (e) => setSource(e.target.value),
           },
-          ["All sources", ...new Set(rows.map((r) => r.source))].map((value) =>
+          ["All sources", ...new Set(viewRows.map((r) => r.source))].map((value) =>
             h("option", { key: value, value }, value),
           ),
         ),
@@ -7381,7 +7403,7 @@ function Library({ ctx }) {
       h(
         "div",
         { className: "counts muted", role: "status", "aria-live": "polite" },
-        `${filtered.length} ${filtered.length === 1 ? section.slice(0, -1) : section} · ${installedNames.size} installed for ${target || "…"}${author ? ` · Author: ${shortAuthor(author)}` : ""}${category !== "all" ? ` · Category: ${CATEGORIES.find((c) => c.id === category)?.label}` : ""}`,
+        `${viewSummary}${author ? ` · Author: ${shortAuthor(author)}` : ""}${category !== "all" ? ` · Category: ${CATEGORIES.find((c) => c.id === category)?.label}` : ""}`,
       ),
     ),
     h(
@@ -7403,9 +7425,11 @@ function Library({ ctx }) {
           ? h(
               "div",
               { className: "empty" },
-              "No matching " +
-                section +
-                ". Try another category, search, or source.",
+              tab === "Installed"
+                ? `No installed ${section} match these filters.`
+                : tab === "Discover"
+                  ? `No available ${section} match these filters.`
+                  : `No online ${section} match this search.`,
               h(
                 "button",
                 {
@@ -7414,7 +7438,6 @@ function Library({ ctx }) {
                     setQuery("");
                     setSource("All sources");
         setAuthor("");
-                    setTab("Discover");
                   },
                 },
                 "Clear filters",

@@ -45,6 +45,14 @@ assert.ok(prompt.includes('Bot Forge blueprint'));
 assert.ok(prompt.includes("supported Bot/Profile creation flow"));
 assert.ok(prompt.includes('Do not install software'));
 assert.ok(guidedBuildTitle(COMMUNITY_DIRECTORY.projects[0]).startsWith('Recreate: '));
+const viewFixtures = [
+  { name: 'Installed A', kind: 'installed', installed: true },
+  { name: 'Installed catalog duplicate', kind: 'hub', installed: true },
+  { name: 'Available B', kind: 'hub', installed: false },
+];
+assert.deepEqual(libraryViewRows(viewFixtures, 'Discover').map(row => row.name), ['Available B']);
+assert.deepEqual(libraryViewRows(viewFixtures, 'Installed').map(row => row.name), ['Installed A']);
+assert.equal(libraryViewRows(viewFixtures, 'Hub results').length, 3);
 assert.ok(!html.includes('Loading community projects'));
 const calls = [];
 host.state.cwd = { get: () => '/work/current' };
