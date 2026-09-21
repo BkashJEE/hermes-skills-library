@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private security report
+    url: https://github.com/BkashJEE/hermes-skills-library/security/advisories/new
+    about: Report a suspected vulnerability privately. Do not open a public issue.
+  - name: Hermes Agent support
+    url: https://github.com/NousResearch/hermes-agent
+    about: Use the upstream project for issues unrelated to this independent library.

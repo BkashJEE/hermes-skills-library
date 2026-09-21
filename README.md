@@ -1,5 +1,8 @@
 # Hermes Skills & Plugins Library
 
+[![Check](https://github.com/BkashJEE/hermes-skills-library/actions/workflows/check.yml/badge.svg)](https://github.com/BkashJEE/hermes-skills-library/actions/workflows/check.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
+
 A community-built **Skills & Plugins** sidebar tab for Hermes Desktop. Browse compact flashcards, understand a capability before opening it, and filter by category or author.
 
 This is an independent plugin by Bikash Joshi. It does not replace Hermes' built-in Capabilities screens and is not an official Nous Research product.
@@ -78,9 +81,10 @@ Node.js 20+ is only needed to build the optional browser preview. Hermes provide
 ```bash
 npm ci
 npm run check
+npm run test:community
 npm run build:preview
 # Use Hermes' Python environment with its repository on PYTHONPATH:
-python -m unittest test_installer test_library
+python -m unittest test_installer test_library test_stories
 python -m uvicorn preview.server:app --host 127.0.0.1 --port 8788
 ```
 
@@ -96,6 +100,6 @@ Disable `hermes-skills-library` for each profile where you enabled it and disabl
 
 ## Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Reports with OS, Hermes revision, reproduction steps and redacted screenshots are welcome. This independent tab retains the custom design; the earlier built-in UI proposal [#114003](https://github.com/NousResearch/hermes-agent/pull/114003) was closed after its upstream card-browser foundation was reverted.
+See the [contribution guide](CONTRIBUTING.md), [code of conduct](CODE_OF_CONDUCT.md), [changelog](CHANGELOG.md) and [release procedure](docs/RELEASING.md). Reports with OS, Hermes revision, reproduction steps and redacted screenshots are welcome. Report suspected vulnerabilities through the private process in [SECURITY.md](SECURITY.md). This independent tab retains the custom design; the earlier built-in UI proposal [#114003](https://github.com/NousResearch/hermes-agent/pull/114003) was closed after its upstream card-browser foundation was reverted.
 
 MIT licensed. See [LICENSE](LICENSE) and [icon notices](THIRD_PARTY_NOTICES.md).
