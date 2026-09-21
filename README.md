@@ -8,7 +8,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Features
 
-- **Community** adds a searchable showcase of projects built around Hermes, with category/author filters, details and links to original repositories and the main Hermes project.
+- **Use Cases** adds a searchable showcase of projects built around Hermes, with category/author filters, details and links to original repositories and the main Hermes project.
 - Skills and plugins share a compact, responsive card layout with colorful icons and brief summaries.
 - Switch **Categories / Authors** to browse chips with counts, arrows, or a keyboard-accessible slider.
 - Short author labels keep the rail readable; hover or open details for full attribution. Maintainers and repository owners are explicitly identified as fallbacks, not assumed authors.
@@ -49,9 +49,9 @@ The installer places the backend in `<Hermes root>/plugins/hermes-skills-library
 
 Cards use author metadata exactly as supplied. Short labels are presentation only: matching preserves complete attribution, so separate credits are not silently merged. Missing attribution is labeled **Not listed**. Common skills have curated brief summaries; other cards use description excerpts. Categories are inferred and may need correction.
 
-## Community showcase
+## Community use cases
 
-Open **Community** beside Skills and Plugins to explore a curated selection of public projects. Search by name, builder or idea; switch Categories / Authors; use the slider or sort A–Z. **Explore build** opens a short overview. **GitHub** opens the original repository; **Main Hermes project** opens Nous Research's upstream project.
+Open **Use Cases** beside Skills and Plugins to explore a curated selection of public projects. Search by name, builder or idea; switch Categories / Authors; use the slider or sort A–Z. **Explore build** opens a short overview. **GitHub** opens the original repository; **Main Hermes project** opens Nous Research's upstream project.
 
 ![Community showcase](docs/community.png)
 

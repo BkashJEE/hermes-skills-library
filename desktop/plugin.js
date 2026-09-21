@@ -658,7 +658,7 @@ const COMMUNITY_CATEGORIES = [
 ];
 function SectionTabs({ section, onChange, busy = false }) {
   return h("div", { className: "sections", "aria-label": "Capability type" },
-    [["skills", "book", "Skills"], ["plugins", "extensions", "Plugins"], ["community", "globe", "Community"]].map(([value, symbol, label]) =>
+    [["skills", "book", "Skills"], ["plugins", "extensions", "Plugins"], ["community", "globe", "Use Cases"]].map(([value, symbol, label]) =>
       h("button", { key: value, disabled: busy, className: section === value ? "active" : "",
         "aria-pressed": section === value, onClick: () => onChange(value) }, icon(symbol), label)));
 }
@@ -700,8 +700,8 @@ function Community({ ctx, onSection }) {
   return h("div", { className: "hsl community" }, h("style", null, css),
     h("div", { className: "library-header" },
       h("div", { className: "top" }, h("div", null,
-        h("div", { className: "eyebrow" }, "HERMES / COMMUNITY"),
-        h("h1", null, "Built with Hermes"), h("p", null, "Explore what people are making. Meet the builders. Find your next idea.")),
+        h("div", { className: "eyebrow" }, "HERMES / USE CASES"),
+        h("h1", null, "What the community is building"), h("p", null, "Explore what people are making. Meet the builders. Find your next idea.")),
         h(ProjectLink, { ctx, url: "https://github.com/NousResearch/hermes-agent" }, "Main Hermes project")),
       h(SectionTabs, { section: "community", onChange: onSection }),
       h("div", { className: "toolbar" },
