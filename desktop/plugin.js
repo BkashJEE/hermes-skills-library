@@ -561,7 +561,7 @@ function ProjectLink({ ctx, url, children, className = "" }) {
   try { const u = new URL(url); valid = u.protocol === "https:" && !u.username && !u.password; } catch {}
   if (!valid) return null;
   return h(React.Fragment, null,
-    h("a", { href: url, title: url, target: "_blank", rel: "noopener noreferrer", className: "project-link " + className,
+    h("a", { href: url, title: url, target: ctx.preview ? "_self" : "_blank", rel: "noopener noreferrer", className: "project-link " + className,
       "aria-label": children === "GitHub" ? "GitHub: " + url.split("/").slice(-2).join("/") : undefined,
       onClick: ctx.os?.openExternal && !ctx.preview ? async (event) => {
         event.preventDefault();
