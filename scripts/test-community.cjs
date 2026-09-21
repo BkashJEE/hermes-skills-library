@@ -11,9 +11,9 @@ import assert from 'node:assert/strict';
 const html = renderToString(h(Community, {
   ctx: { rest() { throw new Error('Backend unavailable'); } }, onSection() {}
 }));
-assert.ok(html.includes(COMMUNITY_DIRECTORY.projects.length + ' projects'));
+assert.ok(html.includes(COMMUNITY_DIRECTORY.projects.length + ' use cases'));
 for (const project of COMMUNITY_DIRECTORY.projects) {
-  assert.ok(html.includes(project.url), 'Missing project link: ' + project.id);
+  assert.ok(html.includes(project.url.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')), 'Missing project link: ' + project.id);
 }
 assert.ok(!html.includes('Loading community projects'));
 console.log('Community without backend: PASS');

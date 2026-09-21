@@ -33,17 +33,21 @@ class LibraryTest(unittest.TestCase):
         response = client.get('/community')
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data['main_url'], 'https://github.com/NousResearch/hermes-agent')
+        self.assertEqual(data['main_url'], 'https://hermes-agent.nousresearch.com/docs/user-stories')
+        self.assertRegex(data['source_revision'], r'^[0-9a-f]{40}$')
         projects = data['projects']
         self.assertTrue(projects)
         self.assertEqual(len({p['id'] for p in projects}), len(projects))
         for project in projects:
             url = urlparse(project['url'])
-            self.assertEqual((url.scheme, url.hostname), ('https', 'github.com'))
-            self.assertEqual(len(url.path.strip('/').split('/')), 2)
+            self.assertEqual(url.scheme, 'https')
+            self.assertTrue(url.hostname)
+            self.assertFalse(url.username or url.password)
+            self.assertEqual(project['docs_url'], data['source_url'])
+            self.assertTrue(project['source'])
             self.assertTrue(project['author'])
             self.assertTrue(project['highlights'])
-            self.assertIn(project['category'], ('voice', 'interfaces', 'workflows', 'resources'))
+            self.assertIn(project['category'], {c['id'] for c in data['categories']})
             self.assertNotIn('installed', project)
 
     @classmethod

@@ -8,8 +8,6 @@ Bug reports should include the OS, Hermes revision, library revision, reproducti
 
 Author corrections should preserve original full credits. Do not assume a repository owner authored all its contents. New source directories must be optional and portable.
 
-## Suggest a community build
+## Update official use cases
 
-Open an issue with the original public repository, repository owner, a short factual description, category and two things people can explore. Entries live in `dashboard/community.json`. Verify the primary source, update `checked_on` when the collection is reviewed, and keep claims brief. Do not add tracking links, private posts, scraped personal data, invented ratings or unverified installation promises. The showcase is curated, not a live feed or an endorsement.
-
-After editing the community directory, run `npm run sync:community` to update the committed Desktop snapshot. `npm run check` verifies it matches, and `npm run test:community` checks that projects render without a backend.
+Use Cases must come from the official Nous Research `website/src/data/userStories.json` dataset. Do not add independent project selections. Suggest new stories to the upstream documentation; import a reviewed upstream commit with `python scripts/import-nous-stories.py --revision <full SHA>`, then run `npm run sync:community`. Preserve attribution and original HTTPS source links, and do not copy third-party post quotations. `npm run check` verifies snapshot synchronization; `npm run test:community` verifies the tab renders without a backend.

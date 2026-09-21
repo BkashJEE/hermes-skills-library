@@ -65,3 +65,7 @@ Added seven source-linked public entries, shared section navigation, category/au
 ## 0.4.1 Desktop loading fix
 
 A Desktop-only blank Community report exposed an unnecessary dependency on a newly added backend route. The browser preview route was healthy, but that did not establish availability in the running Desktop backend. Community now renders immediately from a committed, generated snapshot of the public directory. A regression test renders the real component with a backend that throws, and asserts every project link is present. CI checks snapshot synchronization and this regression. The fix does not restart gateways or require profile access. Native Desktop reload remains a user-side verification step.
+
+## 0.5.0 Official documentation source
+
+Replaced the independent seven-project collection with 326 entries from Nous Research’s official User Stories & Use Cases dataset at revision `299c652a66bcc915a2a1e10cd2b648f196ec4bba`. Preserved the upstream story titles, author credits, 15 categories, source platforms and original links. Added a source filter and explicit docs links; removed repository-owner and GitHub-only assumptions. Third-party post quotations are omitted. The collection remains bundled for immediate Desktop rendering. Source metadata is attributed under the upstream MIT notice.

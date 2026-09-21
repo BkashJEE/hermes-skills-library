@@ -8,7 +8,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Features
 
-- **Use Cases** adds a searchable showcase of projects built around Hermes, with category/author filters, details and links to original repositories and the main Hermes project.
+- **Use Cases** brings the official Nous documentation’s user stories into the library, with category/author/source filters, details and links to the docs and original stories.
 - Skills and plugins share a compact, responsive card layout with colorful icons and brief summaries.
 - Switch **Categories / Authors** to browse chips with counts, arrows, or a keyboard-accessible slider.
 - Short author labels keep the rail readable; hover or open details for full attribution. Maintainers and repository owners are explicitly identified as fallbacks, not assumed authors.
@@ -19,7 +19,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Requirements and status
 
-**Early community release, v0.4.1.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
+**Early community release, v0.5.0.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
 
 You need a working Hermes Desktop installation and access to its Python environment. This repository contains the plugin; it does not bundle Hermes, third-party skills, credentials, or connector packages.
 
@@ -49,13 +49,15 @@ The installer places the backend in `<Hermes root>/plugins/hermes-skills-library
 
 Cards use author metadata exactly as supplied. Short labels are presentation only: matching preserves complete attribution, so separate credits are not silently merged. Missing attribution is labeled **Not listed**. Common skills have curated brief summaries; other cards use description excerpts. Categories are inferred and may need correction.
 
-## Community use cases
+## Use cases from the Nous docs
 
-Open **Use Cases** beside Skills and Plugins to explore a curated selection of public projects. Search by name, builder or idea; switch Categories / Authors; use the slider or sort A–Z. **Explore build** opens a short overview. **GitHub** opens the original repository; **Main Hermes project** opens Nous Research's upstream project.
+Open **Use Cases** beside Skills and Plugins to browse [Nous Research’s official User Stories & Use Cases collection](https://hermes-agent.nousresearch.com/docs/user-stories). This snapshot contains 326 stories across 15 categories. Search by headline or author, filter by source, switch Categories / Authors, or sort A–Z. **View use case** opens details; **Original story** opens the post linked by Nous; **Nous use-case docs** opens the official collection.
 
-![Community showcase](docs/community.png)
+![Use cases from the Nous docs](docs/community.png)
 
-The initial collection includes voice, dashboards, fallback workflows and community directories. Its source is `dashboard/community.json`, embedded into the Desktop entry so projects appear even when the backend is unavailable. It works without social sign-in and is not a live or exhaustive feed. Source checks establish that links and descriptions match the projects; they do not certify safety or compatibility. **Suggest a build** opens an issue form for you to complete.
+Only entries from the official docs dataset are included. Titles, authors, categories, dates and source links are preserved; original post quotations are not copied. These are attributed user experiences, not independently verified outcomes. Counts reflect the bundled snapshot, not a live feed.
+
+The source revision and sync date are recorded in `dashboard/community.json`. The snapshot is embedded in the Desktop entry, so it appears even without a backend or social sign-in. To refresh it, run `python scripts/import-nous-stories.py --revision <full NousResearch/hermes-agent commit SHA>`, then `npm run sync:community` and the checks. Review the diff before publishing.
 
 ## Optional local skill sources
 
