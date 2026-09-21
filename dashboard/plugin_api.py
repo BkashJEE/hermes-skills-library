@@ -41,6 +41,17 @@ async def community(refresh: bool = False):
     return await asyncio.to_thread(_stories.read_cached) or json.loads(Path(__file__).with_name('community.json').read_text())
 
 
+@router.get('/community/preview')
+async def community_preview(id: str):
+    data = await community()
+    if not any(p['id'] == id for p in data['projects']):
+        raise HTTPException(404, 'This story is no longer in the collection.')
+    try:
+        return await asyncio.to_thread(_stories.story_preview, id, data['source_revision'])
+    except Exception as exc:
+        raise HTTPException(502, 'Story preview unavailable. Open the original story instead.') from exc
+
+
 def sources():
     """Explicit local roots; no client-supplied filesystem paths."""
     cfg = Path(__file__).with_name('sources.local.json')

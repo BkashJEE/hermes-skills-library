@@ -19,7 +19,7 @@ This is an independent plugin by Bikash Joshi. It does not replace Hermes' built
 
 ## Requirements and status
 
-**Early community release, v0.5.1.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
+**Early community release, v0.5.2.** Tested on Linux (Omarchy), with Hermes source revision `bce20d0b1f08518b499d06109f2b027519ddeca5`. macOS and Windows are not yet verified. Hermes' internal Python and Desktop SDK APIs can change between updates.
 
 You need a working Hermes Desktop installation and access to its Python environment. This repository contains the plugin; it does not bundle Hermes, third-party skills, credentials, or connector packages.
 
@@ -51,11 +51,11 @@ Cards use author metadata exactly as supplied. Short labels are presentation onl
 
 ## Use cases from the Nous docs
 
-Open **Use Cases** beside Skills and Plugins to browse [Nous Research’s official User Stories & Use Cases collection](https://hermes-agent.nousresearch.com/docs/user-stories). This snapshot contains 326 stories across 15 categories, arranged in the same compact 180px flashcards as Skills and Plugins, with colorful category icons and a brief “What people built” bullet. Search by headline or author, filter by source, switch Categories / Authors, or sort A–Z. **View card** opens the full headline, author and source details; **Read original story** in that dialog opens the post linked by Nous; **Nous use-case docs** opens the official collection.
+Open **Use Cases** beside Skills and Plugins to browse [Nous Research’s official User Stories & Use Cases collection](https://hermes-agent.nousresearch.com/docs/user-stories). This snapshot contains 326 stories across 15 categories, arranged in the same compact 180px flashcards as Skills and Plugins, with colorful category icons and a brief “What people built” bullet. Search by headline or author, filter by source, switch Categories / Authors, or sort A–Z. Category labels use plain language such as Coding, Everyday help, Connecting apps and Saving money; tooltips preserve the original Nous category names. **View card** shows a floating preview on hover or keyboard focus: a brief attributed story excerpt, plus the original video thumbnail for YouTube entries. Click it to open the full headline, author and source details; **Read original story** in that dialog opens the post linked by Nous; **Nous use-case docs** opens the official collection.
 
 ![Use cases from the Nous docs](docs/community.png)
 
-Only entries from the official docs dataset are included. Titles, authors, categories, dates and source links are preserved; original post quotations are not copied. These are attributed user experiences, not independently verified outcomes. Counts initially reflect the bundled snapshot or your last saved refresh.
+Only entries from the official docs dataset are included. Titles, authors, categories, dates and source links are preserved; full original posts are not bundled. Optional previews retrieve only a short attributed excerpt from the official dataset. These are attributed user experiences, not independently verified outcomes. Counts initially reflect the bundled snapshot or your last saved refresh.
 
 **Refresh** checks the latest official Nous docs dataset, updates cards without clearing your filters, and shows the last successful check time. New stories, categories and sources become browsable immediately. The last successful collection is saved locally for reopening the tab; a failed refresh keeps existing cards visible. Refresh needs a working plugin backend and internet connection.
 

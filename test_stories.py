@@ -80,6 +80,21 @@ class StoriesTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             stories.NoRedirect().redirect_request(None, None, 302, None, None, 'https://example.com')
 
+    def test_preview_is_short_and_cached_by_revision(self):
+        stories._PREVIEW_CACHE = ('', {})
+        row = {**STORY, 'quote': ' '.join('word' + str(i) for i in range(50))}
+        with patch.object(stories, 'fetch_json', return_value=[row]) as fetch:
+            preview = stories.story_preview(row['id'], SHA)
+            self.assertEqual(len(preview['excerpt'].split()), 24)
+            self.assertTrue(preview['excerpt'].endswith('…'))
+            self.assertEqual(preview['author'], row['author'])
+            self.assertEqual(preview['url'], row['url'])
+            self.assertEqual(stories.story_preview(row['id'], SHA), preview)
+            fetch.assert_called_once()
+        self.assertFalse(self.path.exists())
+        with self.assertRaises(ValueError):
+            stories.story_preview(row['id'], '../main')
+
     def test_write_failure_preserves_cache(self):
         self.refresh()
         saved = self.path.read_bytes()

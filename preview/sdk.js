@@ -1,5 +1,5 @@
 import React from "react";
-import { Dialog as RadixDialog } from "radix-ui";
+import { Dialog as RadixDialog, Popover as RadixPopover } from "radix-ui";
 export const host = {
   state: {
     profile: { get: () => "default", listen: () => () => {} },
@@ -39,4 +39,10 @@ export function DialogContent({ children, ...props }) {
       children,
     ),
   );
+}
+
+export const Popover = RadixPopover.Root, PopoverTrigger = RadixPopover.Trigger;
+export function PopoverContent({ children, ...props }) {
+  return React.createElement(RadixPopover.Portal, null,
+    React.createElement(RadixPopover.Content, props, children));
 }

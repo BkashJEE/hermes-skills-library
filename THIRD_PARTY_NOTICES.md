@@ -31,7 +31,7 @@ SOFTWARE.
 
 ## Official Hermes use-case metadata
 
-Story titles, authors, categories, dates and source links are adapted from the [Nous Research documentation dataset](https://github.com/NousResearch/hermes-agent/blob/299c652a66bcc915a2a1e10cd2b648f196ec4bba/website/src/data/userStories.json). Original third-party post quotations are not reproduced; readers follow the original links. Snapshot provenance is recorded in `dashboard/community.json`.
+Story titles, authors, categories, dates and source links are adapted from the [Nous Research documentation dataset](https://github.com/NousResearch/hermes-agent/blob/299c652a66bcc915a2a1e10cd2b648f196ec4bba/website/src/data/userStories.json). Full third-party posts are not bundled. On opening a preview, a brief attributed excerpt (at most 24 words) may be retrieved from the official dataset, with a link to its original source. YouTube previews load the original video thumbnail directly from YouTube; these images are not bundled. Snapshot provenance is recorded in `dashboard/community.json`.
 
 MIT License
 

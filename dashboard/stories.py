@@ -144,3 +144,29 @@ def refresh():
         return data
     finally:
         _REFRESH_LOCK.release()
+
+
+_PREVIEW_LOCK = threading.Lock()
+_PREVIEW_CACHE = ('', {})
+
+
+def story_preview(identifier, revision):
+    """Lazy, short excerpts from a fixed official revision; never fetch arbitrary story URLs."""
+    global _PREVIEW_CACHE
+    if not re.fullmatch(r'[0-9a-f]{40}', revision):
+        raise ValueError('Invalid official revision')
+    with _PREVIEW_LOCK:
+        if _PREVIEW_CACHE[0] != revision:
+            rows = fetch_json(f'https://raw.githubusercontent.com/NousResearch/hermes-agent/{revision}/{_DATA_PATH}')
+            convert(rows, revision)
+            previews = {}
+            for row in rows:
+                quote = row.get('quote')
+                words = quote.split() if isinstance(quote, str) else []
+                # A brief attributed excerpt, not a reproduction of the original post.
+                excerpt = ' '.join(words[:24])
+                if len(words) > 24:
+                    excerpt += '…'
+                previews[row['id']] = {'excerpt': excerpt, 'url': row['url'], 'author': row['author']}
+            _PREVIEW_CACHE = (revision, previews)
+        return _PREVIEW_CACHE[1].get(identifier, {'excerpt': ''})

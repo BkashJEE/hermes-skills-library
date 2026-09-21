@@ -63,6 +63,18 @@ class LibraryTest(unittest.TestCase):
             self.assertEqual(client.get('/community?refresh=true').status_code, 502)
             self.assertEqual(client.get('/community').status_code, 200)
 
+    def test_story_preview_uses_only_known_story_and_fixed_revision(self):
+        from unittest.mock import patch
+        data = client.get('/community').json()
+        with patch.object(api._stories, 'story_preview', return_value={'excerpt': 'A brief source preview.'}) as preview:
+            response = client.get('/community/preview', params={'id': data['projects'][0]['id']})
+            self.assertEqual(response.status_code, 200)
+            preview.assert_called_once_with(data['projects'][0]['id'], data['source_revision'])
+            self.assertEqual(client.get('/community/preview', params={'id': 'https://example.com'}).status_code, 404)
+            self.assertEqual(preview.call_count, 1)
+        with patch.object(api._stories, 'story_preview', side_effect=TimeoutError('offline')):
+            self.assertEqual(client.get('/community/preview', params={'id': data['projects'][0]['id']}).status_code, 502)
+
     @classmethod
     def setUpClass(cls):
         cls.source = root/'source'

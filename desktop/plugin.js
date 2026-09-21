@@ -9,9 +9,15 @@ import {
   DialogContent,
   DialogTitle,
   DialogDescription,
+  Popover, PopoverTrigger, PopoverContent,
 } from "@hermes/plugin-sdk";
 const h = React.createElement;
 const css = `
+.hsl-story-preview{box-sizing:border-box;z-index:100;width:min(360px,calc(100vw - 24px));max-height:min(520px,var(--radix-popover-content-available-height,80vh));overflow:auto;padding:16px;border:1px solid var(--ui-stroke-secondary,#48444f);border-radius:12px;color:var(--ui-text-primary,#eeedf2);background:var(--ui-bg-elevated,#202027);box-shadow:0 16px 48px #0006;font:13px/1.55 system-ui,sans-serif}
+.hsl-story-preview *{box-sizing:border-box}.hsl-story-preview h3{font-size:15px;line-height:1.4;margin:9px 0;overflow-wrap:anywhere}.hsl-story-preview p{margin:8px 0}.hsl-story-preview .preview-kicker{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ui-text-tertiary,#b9b5c6)}
+.hsl-story-preview .preview-meta{color:var(--ui-text-secondary,#bebac9);font-size:11px}.hsl-story-preview blockquote{margin:12px 0 7px;padding:0 0 0 12px;border-left:2px solid var(--preview-accent,#b8aacd);color:var(--ui-text-primary,#eeedf2)}.hsl-story-preview .preview-source{color:var(--ui-text-secondary,#bebac9);font-size:11px}.hsl-story-preview button,.hsl-story-preview a{font:inherit;color:inherit}.hsl-story-preview .preview-close{border:0;background:transparent;color:inherit;cursor:pointer;padding:4px;display:grid;place-items:center}.hsl-story-preview .preview-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}.hsl-story-preview .project-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;text-decoration:none;border:1px solid var(--ui-stroke-secondary,#48444f);border-radius:6px;padding:7px 10px}.hsl-story-preview a:focus-visible,.hsl-story-preview button:focus-visible{outline:2px solid var(--ui-accent,#b8aacd);outline-offset:3px}
+.hsl-story-preview .preview-video{display:block;position:relative;margin-top:10px;border-radius:8px;overflow:hidden;aspect-ratio:16/9;background:#15151a}.hsl-story-preview .preview-video img{display:block;width:100%;height:100%;object-fit:cover}.hsl-story-preview .preview-video span{position:absolute;bottom:8px;left:8px;padding:3px 7px;border-radius:5px;background:#000c;color:#fff;font-size:11px}
+
 .hsl{height:100%;overflow:auto;color:var(--ui-text-primary,#eeedf2);background:var(--background,#141419);padding:32px clamp(20px,3vw,48px);font:14px/1.55 system-ui,sans-serif;box-sizing:border-box}.hsl *,.hsl-dialog,.hsl-dialog *{box-sizing:border-box}.hsl button,.hsl select,.hsl input,.hsl-dialog button,.hsl-dialog input{font:inherit;color:inherit}.hsl button,.hsl select,.hsl-dialog button{border:1px solid var(--ui-stroke-tertiary,#34343b);border-radius:7px;background:var(--ui-bg-quaternary,#24242b);padding:8px 13px;cursor:pointer}.hsl button:hover,.hsl-dialog button:hover{background:var(--chrome-action-hover,#303038)}.hsl button:disabled,.hsl-dialog button:disabled{opacity:.45;cursor:default}.hsl .primary,.hsl-dialog .primary{background:var(--ui-text-primary,#e9e8ed);color:var(--background,#18181e);border-color:transparent}.hsl .top{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}.hsl h1{font-size:29px;letter-spacing:-1px;font-weight:600;margin:0}.hsl h2,.hsl-dialog h2{font-size:22px;letter-spacing:-.5px;margin:8px 0}.hsl p,.hsl-dialog p{margin:5px 0;color:var(--ui-text-secondary,#b8b6c2)}.hsl .eyebrow{font-size:10px;letter-spacing:1.8px;color:var(--ui-text-tertiary,#a6a4b0);margin-bottom:7px}.hsl .target{width:210px}.hsl label,.hsl-dialog label{display:block;font-size:12px;margin-bottom:6px;color:var(--ui-text-secondary,#b8b6c2)}.hsl select{width:100%;min-height:38px}.hsl .toolbar{display:flex;align-items:center;gap:12px;margin:22px 0;flex-wrap:wrap}.hsl input,.hsl-dialog input{min-width:160px;background:transparent;border:1px solid var(--ui-stroke-tertiary,#34343b);border-radius:7px;padding:10px 12px}.hsl .search{flex:1;min-width:220px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--ui-stroke-tertiary,#34343b)}.hsl .search input{width:100%;border:0;outline-offset:-2px;padding-left:0}.hsl .filters{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}.hsl .source-filter{width:185px}.hsl .tabs{display:flex;gap:6px;flex-wrap:wrap}.hsl .tabs button{background:transparent;border-color:transparent;color:var(--ui-text-secondary,#b8b6c2)}.hsl .tabs .active{background:var(--ui-bg-quaternary,#292930);color:var(--ui-text-primary,#eeedf2)}.hsl .sections{display:flex;gap:28px;border-bottom:1px solid var(--ui-stroke-tertiary,#34343b);margin-top:28px}.hsl .sections button{border:0;border-radius:0;padding:14px 0;background:transparent;color:var(--ui-text-secondary,#aaa8b5);display:flex;gap:8px;align-items:center}.hsl .sections .active{color:var(--ui-text-primary,#eeedf2);box-shadow:0 2px 0 currentColor}.hsl .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:16px}.hsl .card{display:flex;flex-direction:column;min-height:192px;padding:22px;border:1px solid var(--ui-stroke-quaternary,#2c2b34);border-radius:12px;background:var(--card,#1c1c23);text-align:left;transition:border-color .15s}.hsl .card:hover{border-color:var(--ui-stroke-primary,#64616f)}.hsl .card-head{display:flex;gap:12px;align-items:center;min-width:0}.hsl .icon{display:grid;place-items:center;flex-shrink:0;width:36px;height:36px;background:var(--ui-bg-quaternary,#292931);border-radius:9px;color:var(--ui-text-secondary,#c5c0d5)}.hsl .name{font-weight:600;font-size:15px;line-height:1.4;overflow-wrap:anywhere}.hsl .source{font-size:11px;color:var(--ui-text-tertiary,#a6a4b0);margin-top:3px}.hsl .desc{font-size:13px;line-height:1.6;margin:16px 0 22px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:42px}.hsl .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto}.hsl .foot button{font-size:12px;padding:5px 0;border:0;background:transparent}.hsl .badge{font-size:11px;color:var(--ui-text-secondary,#b8b6c2)}.hsl .green{color:var(--ui-success,#9ec8ad)}.hsl .amber{color:var(--ui-warning,#d5bb8c)}.hsl .notice,.hsl-dialog .notice{margin:14px 0;padding:14px;border:1px solid var(--ui-stroke-tertiary,#454550);border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}.hsl .error,.hsl-dialog .error{color:var(--ui-danger,#e7a1a1)}.hsl .empty{padding:64px 20px;text-align:center}.hsl-dialog{border-radius:12px;width:min(620px,calc(100vw - 32px));max-width:620px;max-height:88vh;overflow:auto;padding:28px;font:14px/1.6 system-ui,sans-serif;color:var(--ui-text-primary,#eeedf2);background:var(--background,#18181e)}.hsl-dialog pre{max-height:40vh;overflow:auto;font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;padding:18px;background:var(--ui-bg-quaternary,#22222a);border-radius:8px}.hsl-dialog .detail-actions{display:flex;gap:10px;margin:20px 0 0;align-items:center;flex-wrap:wrap}.hsl .muted,.hsl-dialog .muted{color:var(--ui-text-tertiary,#aaa8b5)}.hsl .counts{font-size:12px;margin:0 0 18px}.hsl .target-hint{font-size:10px;margin-top:6px}.hsl-dialog input{width:100%;margin:4px 0 12px}.hsl button:focus-visible,.hsl input:focus-visible,.hsl select:focus-visible,.hsl-dialog button:focus-visible,.hsl-dialog input:focus-visible{outline:2px solid var(--ui-accent,#b8aacd);outline-offset:3px}@media(min-width:1550px){.hsl .grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:650px){.hsl{padding:20px}.hsl .target{width:100%}.hsl .grid{grid-template-columns:1fr}.hsl .toolbar>button{flex:1}.hsl .search{flex-basis:100%}}
 .hsl{container-type:inline-size;min-width:0;width:100%;overflow-x:hidden}
 .hsl .top>div{min-width:0;max-width:100%}
@@ -6542,12 +6548,82 @@ function storyCardTitle(headline) {
   const clause = headline.split(/: | — | – | where | that | so /)[0].trim();
   return clause.length >= 12 ? clause : headline;
 }
+function storyVideoThumbnail(url) {
+  try {
+    const u = new URL(url);
+    const id = u.hostname === "youtu.be" ? u.pathname.slice(1) : ["youtube.com", "www.youtube.com", "m.youtube.com"].includes(u.hostname) ? u.searchParams.get("v") || u.pathname.match(/^\/(?:shorts|embed)\/([^/]+)$/)?.[1] : "";
+    return u.protocol === "https:" && /^[A-Za-z0-9_-]{11}$/.test(id || "") ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : "";
+  } catch { return ""; }
+}
+const STORY_PREVIEWS = new Map();
+function StoryPreviewButton({ ctx, story, revision, onDetails }) {
+  const [open, setOpen] = useState(false), [preview, setPreview] = useState(null), [failed, setFailed] = useState(false), [imageFailed, setImageFailed] = useState(false);
+  const timer = useRef(null), trigger = useRef(null), content = useRef(null), pointer = useRef("");
+  const cancelTimer = () => { clearTimeout(timer.current); };
+  const close = () => { cancelTimer(); setOpen(false); };
+  const laterClose = () => { cancelTimer(); timer.current = setTimeout(() => setOpen(false), 220); };
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    setFailed(false); setPreview(null);
+    const key = revision + ":" + story.id;
+    let request = STORY_PREVIEWS.get(key);
+    if (!request) {
+      request = Promise.resolve().then(() => ctx.rest("/community/preview?id=" + encodeURIComponent(story.id)));
+      STORY_PREVIEWS.set(key, request);
+      request.catch(() => STORY_PREVIEWS.delete(key));
+    }
+    request.then(value => {
+      if (alive) {
+        if (!value || typeof value.excerpt !== "string") { setFailed(true); return; }
+        setPreview(value);
+      }
+    }).catch(() => { if (alive) setFailed(true); });
+    const dismissOnScroll = event => { if (!content.current?.contains(event.target)) close(); };
+    document.addEventListener("wheel", dismissOnScroll, true);
+    document.addEventListener("touchmove", dismissOnScroll, true);
+    window.addEventListener("resize", close);
+    return () => { alive = false; document.removeEventListener("wheel", dismissOnScroll, true); document.removeEventListener("touchmove", dismissOnScroll, true); window.removeEventListener("resize", close); };
+  }, [open, ctx, story.id, revision]);
+  const thumbnail = storyVideoThumbnail(story.url);
+  return h(Popover, { open, onOpenChange: value => { if (!value) close(); } },
+    h(PopoverTrigger, { asChild: true }, h("button", {
+      ref: trigger, "aria-label": "View card: " + story.name,
+      onPointerEnter: event => { if (event.pointerType === "mouse") { cancelTimer(); timer.current = setTimeout(() => setOpen(true), 300); } },
+      onPointerLeave: laterClose,
+      onPointerDown: event => { pointer.current = event.pointerType; },
+      onFocus: () => { if (pointer.current !== "touch") { cancelTimer(); setOpen(true); } },
+      onBlur: event => { pointer.current = ""; if (!content.current?.contains(event.relatedTarget)) laterClose(); },
+      onClick: event => { event.preventDefault(); close(); onDetails(); }
+    }, "View card", icon("arrow-right"))),
+    h(PopoverContent, {
+      ref: content, className: "hsl-story-preview", "aria-label": "Build preview: " + story.name,
+      side: "top", align: "end", sideOffset: 8, collisionPadding: 12,
+      style: { "--preview-accent": story.color },
+      onOpenAutoFocus: event => event.preventDefault(), onCloseAutoFocus: event => event.preventDefault(),
+      onPointerEnter: cancelTimer, onPointerLeave: laterClose,
+      onFocusCapture: cancelTimer, onBlurCapture: event => { if (!content.current?.contains(event.relatedTarget) && event.relatedTarget !== trigger.current) laterClose(); }
+    },
+      h("div", { className: "preview-kicker" }, "Build preview", h("button", { className: "preview-close", "aria-label": "Close build preview", onClick: close }, icon("close"))),
+      h("h3", null, story.name), h("p", { className: "preview-meta" }, `${story.source} · ${story.author} · ${story.date}`),
+      thumbnail && !imageFailed && h("div", { className: "preview-video" }, h("img", { src: thumbnail, alt: "Video thumbnail for " + story.name, referrerPolicy: "no-referrer", onError: () => setImageFailed(true) }), h("span", null, "Video preview · YouTube")),
+      preview?.excerpt ? h(React.Fragment, null, h("blockquote", null, preview.excerpt), h("p", { className: "preview-source" }, "Story excerpt · via Nous docs")) : h("p", { className: "preview-source", role: "status" }, failed ? "Preview unavailable. Open the original story to see the build." : preview ? "Open the original story to see this build." : "Loading story preview…"),
+      h("div", { className: "preview-actions" }, h(ProjectLink, { ctx, url: story.url }, thumbnail ? "Watch original video" : "Open original story"), h(ProjectLink, { ctx, url: story.docs_url }, "Nous docs"))));
+}
 function validStoryDirectory(data) {
   return data && Array.isArray(data.projects) && data.projects.length > 0 && Array.isArray(data.categories)
     && data.source_url === COMMUNITY_DIRECTORY.source_url && typeof data.checked_on === "string"
     && data.projects.every(p => p && ["id", "name", "author", "category", "source", "description", "url", "docs_url"].every(k => typeof p[k] === "string") && Array.isArray(p.highlights))
     && data.categories.every(c => c && typeof c.id === "string" && typeof c.label === "string");
 }
+const STORY_CATEGORY_LABELS = {
+  "dev-workflow": "Coding", "personal-assistant": "Everyday help",
+  integrations: "Connecting apps", creative: "Art & design", "business-ops": "Running a business",
+  meta: "Community projects", "cost-optimization": "Saving money", privacy: "Privacy & control",
+  "content-creation": "Making content", research: "Learning & research", enterprise: "Work teams",
+  messaging: "Chat & messages", general: "Other ideas", trading: "Trading & investing", marketing: "Promoting your work"
+};
 function Community({ ctx, onSection }) {
   const [data, setData] = useState(COMMUNITY_DIRECTORY);
   const [refreshing, setRefreshing] = useState(false), [refreshNote, setRefreshNote] = useState(""), [refreshError, setRefreshError] = useState(false);
@@ -6583,7 +6659,10 @@ function Community({ ctx, onSection }) {
       if (generation === requestGeneration.current) setRefreshing(false);
     }
   }
-  const categories = [{ id: "all", label: "All use cases", icon: "globe" }, ...data.categories];
+  const categories = [{ id: "all", label: "All ideas", icon: "globe" }, ...data.categories.map(c => ({
+    ...c, label: STORY_CATEGORY_LABELS[c.id] || c.label,
+    fullLabel: STORY_CATEGORY_LABELS[c.id] ? `${STORY_CATEGORY_LABELS[c.id]} · ${c.label}` : c.label
+  }))];
   const [query, setQuery] = useState(""), [category, setCategory] = useState("all"), [author, setAuthor] = useState("");
   const [mode, setMode] = useState("categories"), [sort, setSort] = useState("curated"), [selected, setSelected] = useState(null);
   const [storySource, setStorySource] = useState("");
@@ -6633,8 +6712,8 @@ function Community({ ctx, onSection }) {
                 h("span", { className: "summary-dot", "aria-hidden": true }, "•"),
                 h("span", { className: "summary-text", title: p.name }, p.name)))),
           h("div", { className: "foot" },
-            h("span", { className: "badge", title: categories.find(c => c.id === p.category)?.label }, categories.find(c => c.id === p.category)?.label),
-            h("button", { onClick: () => setSelected(p), "aria-label": "View card: " + p.name }, "View card", icon("arrow-right")))))) : h("div", { className: "empty" }, h("p", null, "No matching use cases. Try another author, category, source, or search."), h("button", { onClick: clear }, "Reset browsing")),
+            h("span", { className: "badge", title: categories.find(c => c.id === p.category)?.fullLabel }, categories.find(c => c.id === p.category)?.label),
+            h(StoryPreviewButton, { ctx, story: p, revision: data.source_revision, onDetails: () => setSelected(p) }))))) : h("div", { className: "empty" }, h("p", null, "No matching use cases. Try another author, category, source, or search."), h("button", { onClick: clear }, "Reset browsing")),
         h("div", { className: "community-bottom" }, h("p", { className: "muted" }, "Stories from the official docs. Refresh to check for updates. Stories describe users’ experiences; inclusion is not independent verification or endorsement."),
           h(ProjectLink, { ctx, url: data.source_url }, "Browse Nous docs")))),
     h(Dialog, { open: !!selected, onOpenChange: open => { if (!open) setSelected(null); } },
