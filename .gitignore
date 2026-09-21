@@ -1,0 +1,11 @@
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+.env
+.env.*
+preview/bundle.js
+preview/bundle.js.map
+dashboard/sources.local.json
+*.log
+.DS_Store

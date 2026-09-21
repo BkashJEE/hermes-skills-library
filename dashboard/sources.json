@@ -1,0 +1,19 @@
+[
+  {
+    "path": "~/.codex/skills",
+    "label": "Codex personal"
+  },
+  {
+    "path": "~/.agents/skills",
+    "label": "Personal skills"
+  },
+  {
+    "path": "~/.codex/plugins/cache",
+    "label": "Codex plugins",
+    "connector": true
+  },
+  {
+    "path": "~/.openclaw/workspace/skills",
+    "label": "OpenClaw personal"
+  }
+]

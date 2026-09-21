@@ -1,0 +1,9 @@
+{
+  "name": "hermes-skills-library",
+  "label": "Skills & Plugins",
+  "description": "Browse skills and plugins, import repositories, and manage agent capabilities",
+  "api": "plugin_api.py",
+  "tab": {
+    "hidden": true
+  }
+}

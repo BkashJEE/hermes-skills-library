@@ -1,0 +1,18 @@
+{
+  "name": "hermes-skills-library",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Community Skills & Plugins browser for Hermes Desktop",
+  "license": "MIT",
+  "scripts": {
+    "check": "node --check desktop/plugin.js && node --check preview/build.cjs",
+    "build:preview": "node preview/build.cjs"
+  },
+  "devDependencies": {
+    "@vscode/codicons": "0.0.45",
+    "esbuild": "0.28.1",
+    "radix-ui": "1.6.7",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  }
+}
