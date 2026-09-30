@@ -2,6 +2,17 @@
 
 Notable changes to this project are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases use semantic versioning while the project remains pre-1.0.
 
+## Unreleased
+
+### Fixed
+
+- `install.py` no longer produces invalid YAML when `plugins.enabled` is a block list followed by another key such as `disabled:`; the replacement now preserves the node's exact trailing whitespace. Reported in #7.
+- The symlink rejection test skips itself where symlinks need elevated rights (Windows).
+
+### Changed
+
+- The installer and README now explain that Hermes Desktop must be fully restarted after installing, because the serve process discovers plugins and mounts their API routes only at startup. Reported in #7.
+
 ## 0.6.3 - 2026-09-21
 
 ### Changed

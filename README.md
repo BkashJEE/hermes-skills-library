@@ -52,11 +52,19 @@ PYTHONPATH="$HOME/.hermes/hermes-agent" "$HOME/.hermes/hermes-agent/venv/bin/pyt
 PYTHONPATH="$HOME/.hermes/hermes-agent" "$HOME/.hermes/hermes-agent/venv/bin/python" install.py --profile default
 ```
 
+On Windows, use the interpreter from Hermes' virtual environment in PowerShell, for example:
+
+```powershell
+$env:PYTHONPATH = "$HOME\.hermes\hermes-agent"
+& "$HOME\.hermes\hermes-agent\venv\Scripts\python.exe" install.py --profile default --dry-run
+& "$HOME\.hermes\hermes-agent\venv\Scripts\python.exe" install.py --profile default
+```
+
 Adjust the Hermes repository/interpreter paths if your installation differs. `--profile` accepts an existing profile and can be repeated. `--all-profiles` is an explicit opt-in; without either option, files are copied but no profile configuration is enabled.
 
 The installer places the backend in `<Hermes root>/plugins/hermes-skills-library/` and the Desktop entry in `<Hermes root>/desktop-plugins/hermes-skills-library/`. It backs up existing files and selected profile configurations first, preserves unrelated settings, and respects explicit disable settings. No skills or other plugins are bulk-installed.
 
-**Reopen Hermes Desktop**, choose the local connection, then open **Skills & Plugins** in the sidebar or command palette. This release uses the paired installer above; generic Git import of this library itself is not the documented installation path.
+**Fully quit and reopen Hermes Desktop.** Hermes discovers plugins and mounts their API routes only when its serve process starts, and its in-memory plugin cache does not pick up directories added afterwards. If Skills & Plugins shows `404: Plugin not found` after installing, a serve or gateway process started before the install is still running: quit Hermes Desktop completely (or run `hermes gateway restart` and end any leftover `hermes serve` process), then reopen it. Choose the local connection, then open **Skills & Plugins** in the sidebar or command palette. This release uses the paired installer above; generic Git import of this library itself is not the documented installation path.
 
 ## Use
 
@@ -105,7 +113,7 @@ python -m uvicorn preview.server:app --host 127.0.0.1 --port 8788
 
 The preview reads local catalog data. **Do not expose it publicly.** It blocks all non-GET/HEAD requests, and installation controls are disabled. It is not a hosted installer.
 
-Tests use a disposable Hermes home for skill/plugin imports and profile isolation. `test_installer` only needs PyYAML; `test_library` also needs Hermes, FastAPI and httpx. CI checks syntax, preview build, offline story refresh behavior and installer config preservation; integration tests are run separately against Hermes. See the [audit and validation report](docs/AUDIT.md) for scope and limitations.
+Tests use a disposable Hermes home for skill/plugin imports and profile isolation. `test_installer` only needs PyYAML; `test_library` also needs Hermes, FastAPI and httpx. On Windows, the symlink test skips itself unless Developer Mode or administrator rights allow symlinks; the plugin-import tests there are not yet verified (see issue #7). CI checks syntax, preview build, offline story refresh behavior and installer config preservation; integration tests are run separately against Hermes. See the [audit and validation report](docs/AUDIT.md) for scope and limitations.
 
 ## Update, disable and remove
 
