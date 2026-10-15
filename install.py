@@ -7,6 +7,11 @@ import time
 import yaml
 
 NAME = 'hermes-skills-library'
+RESTART_NOTICE = (
+    'Files are installed, but Hermes discovers plugins only when its serve process starts.\n'
+    'Fully quit Hermes Desktop (and any `hermes serve`/gateway process still running), then reopen it.\n'
+    'Until then, Skills & Plugins may show 404 "Plugin not found".\n'
+    'If no profile was selected, enable hermes-skills-library in Hermes first.')
 
 
 def enable_in_config(text):
@@ -34,7 +39,9 @@ def enable_in_config(text):
         enabled_node = next((v for k, v in plugin_node.value if k.value == 'enabled'), None)
         if enabled_node:
             old = text[enabled_node.start_mark.index:enabled_node.end_mark.index]
-            replacement = json.dumps(enabled) + ('\n' if old.endswith('\n') else '')
+            # PyYAML's end_mark for a block sequence extends past the newline into the
+            # indentation of the next key, so preserve that whitespace exactly (#7).
+            replacement = json.dumps(enabled) + old[len(old.rstrip()):]
             text = text[:enabled_node.start_mark.index] + replacement + text[enabled_node.end_mark.index:]
         elif plugin_node.flow_style:
             replacement = json.dumps({**section, 'enabled': enabled})
@@ -105,7 +112,7 @@ def main():
         temporary.chmod(0o600)
         temporary.replace(config)
     print(json.dumps({**plan, 'backups': str(backup)}, indent=2))
-    print('Reopen Hermes Desktop. If no profile was selected, enable hermes-skills-library in Hermes first.')
+    print(RESTART_NOTICE)
 
 
 if __name__ == '__main__':

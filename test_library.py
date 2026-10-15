@@ -126,7 +126,10 @@ class LibraryTest(unittest.TestCase):
         bad=root/'bad'
         bad.mkdir()
         (bad/'SKILL.md').write_text('# Link test')
-        (bad/'leak').symlink_to(root/'profiles/alice/config.yaml')
+        try:
+            (bad/'leak').symlink_to(root/'profiles/alice/config.yaml')
+        except OSError as error:  # Windows needs Developer Mode or admin rights for symlinks
+            self.skipTest(f'symlinks unavailable here: {error}')
         with self.assertRaises(HTTPException): api.bundle_files(bad)
 
     def test_06_os_and_dependencies(self):
